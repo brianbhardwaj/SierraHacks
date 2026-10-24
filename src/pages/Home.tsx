@@ -36,8 +36,16 @@ export function Home() {
         .home-topic img { width: 100%; height: 220px; object-fit: cover; border-radius: 22px; display: block; }
         .home-topic h2 { margin: 0.15rem 0 0.7rem; letter-spacing: -0.03em; color: #10281c; }
         .home-topic p { color: var(--mute); max-width: 38rem; }
+        .home-split { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; margin: 0 0 2.2rem; }
+        .home-split article { padding: 1.35rem 1.45rem 1.4rem; border-radius: 22px; background: rgba(255,255,255,0.42); border: 1px solid rgba(255,255,255,0.55); backdrop-filter: blur(16px); }
+        .home-split h2 { margin: 0.15rem 0 0.7rem; letter-spacing: -0.03em; color: #10281c; }
+        .home-split p { color: var(--mute); margin: 0 0 0.7rem; }
+        .home-split p:last-child { margin: 0; }
+        .home-who { display: grid; gap: 0.45rem; margin: 0.2rem 0 0; padding: 0; list-style: none; }
+        .home-who li { color: var(--mute); padding: 0.15rem 0; }
+        .home-who strong { font-family: var(--display); font-weight: 600; color: #10281c; }
         @media (max-width: 860px) {
-          .home-hero, .home-glass, .home-glass a:first-child { grid-template-columns: 1fr; }
+          .home-hero, .home-glass, .home-glass a:first-child, .home-split { grid-template-columns: 1fr; }
           .home-glass a:first-child { flex-direction: column; align-items: flex-start; }
           .home-topic, .home-topic.reverse { grid-template-columns: 1fr; }
           .home-topic img { height: 180px; }
@@ -70,6 +78,39 @@ export function Home() {
             </Link>
           ))}
         </nav>
+      </section>
+
+      <section className="home-split" aria-label="Purpose and who this is for">
+        <article>
+          <p className="kicker">Purpose</p>
+          <h2>What Unspray does</h2>
+          <p>
+            Unspray puts public California pesticide records next to tools people in the Central Valley
+            can actually use. The Valley grows a quarter of the nation’s food<Cite n={[ID.xercesCV]} />.
+            Spray pounds are published by county and crop. They are not printed on the package, and no
+            public dataset ties a farm to a store shelf.
+          </p>
+          <p>
+            So this site does not guess that link. It lets you scan or name a product and see crop
+            records, find markets near a zip, email the people who sell your food, report harm with a
+            1-87PestLine script, plant native habitat, and ask Sprout what to do next.
+          </p>
+        </article>
+        <article>
+          <p className="kicker">Who it’s for</p>
+          <h2>Who in the Valley</h2>
+          <p>
+            Built for people who live, work, shop, or garden in California’s Central Valley, especially
+            the counties that publish the heaviest agricultural spray.
+          </p>
+          <ul className="home-who">
+            <li><strong>Shoppers</strong> who want county crop records beside a barcode or a name.</li>
+            <li><strong>Neighbors of orchards and fields</strong> who need SprayDays alerts and a way to report drift.</li>
+            <li><strong>Parents and school communities</strong> who can ask nutrition offices how food is grown.</li>
+            <li><strong>Farmworkers and field crews</strong> who can report harm and ask to stay anonymous.</li>
+            <li><strong>Gardeners and beekeepers</strong> who want native milkweed and bloom-safe questions, not invented farm lists.</li>
+          </ul>
+        </article>
       </section>
 
       <article className="home-topic">
