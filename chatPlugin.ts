@@ -1,9 +1,10 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Plugin } from 'vite'
 
-// Optional AI backend. Set OPENAI_API_KEY (and optionally OPENAI_BASE_URL /
-// UNSPRAY_MODEL) before starting Vite. Without a key the site falls back to
-// its built-in, source-grounded guide, so nothing breaks.
+// Optional AI backend. Set OPENAI_API_KEY in .env.local (and optionally
+// OPENAI_BASE_URL / UNSPRAY_MODEL). Groq keys use
+// OPENAI_BASE_URL=https://api.groq.com/openai/v1. Without a key the site
+// falls back to its built-in, source-grounded guide.
 
 type Msg = { role: 'user' | 'assistant'; content: string }
 
