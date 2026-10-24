@@ -4,12 +4,12 @@ import { Cite } from './Cite'
 
 type ProviderKey = 'grocery' | 'market' | 'farmer' | 'restaurant' | 'school'
 
-const providers: Record<ProviderKey, { label: string; icon: string; greeting: string; relation: string; farm: boolean }> = {
-  grocery: { label: 'Grocery store', icon: '🛒', greeting: 'Dear Store Manager,', relation: 'I shop at your store', farm: false },
-  market: { label: 'Farmers market or farm stand', icon: '🥕', greeting: 'Hello,', relation: 'I buy from you at the market', farm: true },
-  farmer: { label: 'Farm or CSA', icon: '🚜', greeting: 'Hello,', relation: 'I buy produce from your farm', farm: true },
-  restaurant: { label: 'Restaurant or café', icon: '🍽️', greeting: 'Dear Owner,', relation: 'I’m a regular customer', farm: false },
-  school: { label: 'School nutrition office', icon: '🏫', greeting: 'Dear Nutrition Director,', relation: 'I’m part of our school community', farm: false },
+const providers: Record<ProviderKey, { label: string; mark: string; greeting: string; relation: string; farm: boolean }> = {
+  grocery: { label: 'Grocery store', mark: '*', greeting: 'Dear Store Manager,', relation: 'I shop at your store', farm: false },
+  market: { label: 'Farmers market or farm stand', mark: '+', greeting: 'Hello,', relation: 'I buy from you at the market', farm: true },
+  farmer: { label: 'Farm or CSA', mark: '#', greeting: 'Hello,', relation: 'I buy produce from your farm', farm: true },
+  restaurant: { label: 'Restaurant or café', mark: '&', greeting: 'Dear Owner,', relation: 'I’m a regular customer', farm: false },
+  school: { label: 'School nutrition office', mark: '/', greeting: 'Dear Nutrition Director,', relation: 'I’m part of our school community', farm: false },
 }
 
 type AskKey = 'transparency' | 'pollinators' | 'habitat' | 'sourcing'
@@ -148,7 +148,7 @@ export function Emailer({ storeHint = '' }: { storeHint?: string }) {
         <div className="chips">
           {(Object.keys(providers) as ProviderKey[]).map((k) => (
             <button key={k} type="button" className={provider === k ? 'chip on' : 'chip'} aria-pressed={provider === k} onClick={() => setProvider(k)}>
-              {providers[k].icon} {providers[k].label}
+              {providers[k].mark} {providers[k].label}
             </button>
           ))}
         </div>
@@ -157,7 +157,7 @@ export function Emailer({ storeHint = '' }: { storeHint?: string }) {
         <div className="chips">
           {(Object.keys(asks) as AskKey[]).map((k) => (
             <button key={k} type="button" className={picked.includes(k) ? 'chip on' : 'chip'} aria-pressed={picked.includes(k)} onClick={() => toggle(k)}>
-              {picked.includes(k) ? '✓ ' : '+ '}{asks[k].label}
+              {picked.includes(k) ? '* ' : '+ '}{asks[k].label}
             </button>
           ))}
         </div>
@@ -201,7 +201,7 @@ export function Emailer({ storeHint = '' }: { storeHint?: string }) {
         <div className="hero-cta">
           <a className={`btn${canSend ? '' : ' disabled'}`} href={canSend ? mailto : undefined} aria-disabled={!canSend}>Open in my email app</a>
           <button type="button" className="btn ghost" onClick={copy} disabled={!canSend}>
-            {copied ? '✓ Copied!' : 'Copy email'}
+            {copied ? '* Copied' : 'Copy email'}
           </button>
         </div>
         <p className="note">

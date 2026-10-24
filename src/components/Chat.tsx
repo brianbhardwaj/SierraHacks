@@ -69,7 +69,7 @@ export function Chat() {
   return (
     <div className="soft-card chat">
       <div className="chat-top">
-        <span className="avatar" aria-hidden="true">🌱</span>
+        <span className="avatar" aria-hidden="true">S</span>
         <div>
           <strong>Sprout, your action guide</strong>
           <small>
