@@ -19,5 +19,5 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["vite.config.ts", "chatPlugin.ts", "server/unsprayApi.ts", "src/data/facts.ts"]
+  "include": ["vite.config.ts", "chatPlugin.ts", "src/data/facts.ts"]
 }

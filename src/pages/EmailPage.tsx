@@ -3,10 +3,10 @@ import { Emailer } from '../components/Emailer'
 import { Reveal } from '../components/Motion'
 
 const tips = [
-  { mark: '*', t: 'Ask, don’t accuse', d: 'You don’t know their practices yet. A curious question gets answers; a charge gets silence.' },
-  { mark: '+', t: 'Be specific', d: 'One or two clear asks are far more likely to be answered than a long list.' },
-  { mark: '#', t: 'Bring a friend', d: 'Providers notice when several customers ask the same thing. Share this page.' },
-  { mark: '/', t: 'Follow up kindly', d: 'If there’s no reply in two weeks, ask once more in person or by phone.' },
+  { icon: '🎯', t: 'Ask, don’t accuse', d: 'You don’t know their practices yet. A curious question gets answers; a charge gets silence.' },
+  { icon: '🧾', t: 'Be specific', d: 'One or two clear asks are far more likely to be answered than a long list.' },
+  { icon: '🤝', t: 'Bring a friend', d: 'Providers notice when several customers ask the same thing. Share this page.' },
+  { icon: '🔁', t: 'Follow up kindly', d: 'If there’s no reply in two weeks, ask once more in person or by phone.' },
 ]
 
 export function EmailPage() {
@@ -29,7 +29,7 @@ export function EmailPage() {
       <section className="tips">
         {tips.map((t, i) => (
           <Reveal key={t.t} delay={i * 90} className="soft-card tip">
-            <span aria-hidden="true">{t.mark}</span>
+            <span aria-hidden="true">{t.icon}</span>
             <h4>{t.t}</h4>
             <p>{t.d}</p>
           </Reveal>

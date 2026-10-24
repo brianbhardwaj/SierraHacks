@@ -34,18 +34,25 @@ export function Layout() {
   return (
     <div className="shell" data-theme={page.theme}>
       <Backdrop key={page.mode} mode={page.mode} />
-      <aside className="side-tab">
+      <header className="topbar">
         <NavLink to="/" className="brand" aria-label="Unspray home" end>
           Unspray
         </NavLink>
-        <nav className="side-nav" aria-label="Main">
+        <nav className="top-nav" aria-label="Main">
           {pages.map((p) => (
-            <NavLink key={p.to} to={p.to} end className={({ isActive }) => (isActive ? 'on' : '')}>
+            <NavLink
+              key={p.to}
+              to={p.to}
+              end
+              className={({ isActive }) =>
+                [isActive ? 'on' : '', p.to === '/product' ? 'glow-link' : ''].filter(Boolean).join(' ')
+              }
+            >
               {p.label}
             </NavLink>
           ))}
         </nav>
-      </aside>
+      </header>
       <div className="stage">
         <main className="page">
           <Outlet />

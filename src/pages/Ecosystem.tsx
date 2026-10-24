@@ -28,7 +28,7 @@ export function Ecosystem() {
       {/* MONARCHS */}
       <Reveal as="section" className="topic">
         <div className="topic-text">
-          <h2>Monarchs</h2>
+          <h2>🦋 Monarchs</h2>
           <p>
             The western monarch count fell from millions in the 1980s to about ten thousand in recent winters,
             a decline of roughly <strong>10% per year</strong><Cite n={[ID.monarch2026]} />. Habitat loss,
@@ -84,7 +84,7 @@ export function Ecosystem() {
           </p>
         </div>
         <div className="topic-text">
-          <h2>Almond-bloom bees</h2>
+          <h2>🐝 Almond-bloom bees</h2>
           <p>
             Every February, about two million hives are trucked into Central Valley almond orchards. A
             peer-reviewed analysis found that bee-toxic products lacking EPA precautionary language are
@@ -102,7 +102,7 @@ export function Ecosystem() {
       {/* WATER */}
       <Reveal as="section" className="topic">
         <div className="topic-text">
-          <h2>Waterways</h2>
+          <h2>💧 Waterways</h2>
           <p>
             Researchers tested 70 sediment samples from Central Valley water bodies in 10 counties. <strong>42%</strong>{' '}
             of locations were toxic to a test invertebrate, and <strong>14%</strong> were extremely
@@ -136,7 +136,7 @@ export function Ecosystem() {
           </p>
         </div>
         <div className="topic-text">
-          <h2>Wildflower borders</h2>
+          <h2>🌾 Wildflower borders</h2>
           <p>
             Farm-edge flower strips are meant to be safe havens. A USGS study checked eight farms with
             pollinator-friendly borders and still detected a mix of pesticides across bees, flowers, soil,

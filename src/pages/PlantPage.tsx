@@ -54,10 +54,10 @@ const cards = [
 ]
 
 const rules = [
-  { mark: '*', t: 'Pick natives', d: 'Xerces recommends regionally appropriate native flowers and native milkweeds.' },
-  { mark: '/', t: 'Skip tropical milkweed', d: 'Stick with native milkweed species suited to California.' },
-  { mark: '#', t: 'Go insecticide-free', d: 'Xerces’ first monarch action is avoiding pesticides, especially insecticides.' },
-  { mark: '+', t: 'Ask about seed origin', d: 'Good vendors can tell you where seed was grown and whether plants were treated.' },
+  { icon: '🌱', t: 'Pick natives', d: 'Xerces recommends regionally appropriate native flowers and native milkweeds.' },
+  { icon: '🚫', t: 'Skip tropical milkweed', d: 'Stick with native milkweed species suited to California.' },
+  { icon: '🧪', t: 'Go insecticide-free', d: 'Xerces’ first monarch action is avoiding pesticides, especially insecticides.' },
+  { icon: '🔍', t: 'Ask about seed origin', d: 'Good vendors can tell you where seed was grown and whether plants were treated.' },
 ]
 
 export function PlantPage() {
@@ -76,7 +76,7 @@ export function PlantPage() {
       <section className="rules">
         {rules.map((r, i) => (
           <Reveal key={r.t} delay={i * 80} className="soft-card tip">
-            <span aria-hidden="true">{r.mark}</span>
+            <span aria-hidden="true">{r.icon}</span>
             <h4>{r.t}</h4>
             <p>{r.d}</p>
           </Reveal>
