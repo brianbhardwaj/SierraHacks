@@ -1,0 +1,18 @@
+export const cities: { city: string; county: string }[] = [
+  { city: 'Manteca', county: 'San Joaquin' },
+  { city: 'Stockton', county: 'San Joaquin' },
+  { city: 'Tracy', county: 'San Joaquin' },
+  { city: 'Fresno', county: 'Fresno' },
+  { city: 'Clovis', county: 'Fresno' },
+  { city: 'Bakersfield', county: 'Kern' },
+  { city: 'Modesto', county: 'Stanislaus' },
+  { city: 'Merced', county: 'Merced' },
+  { city: 'Visalia', county: 'Tulare' },
+  { city: 'Sacramento', county: 'Sacramento' },
+  { city: 'Davis', county: 'Yolo' },
+  { city: 'Woodland', county: 'Yolo' },
+  { city: 'Chico', county: 'Butte' },
+  { city: 'Yuba City', county: 'Sutter' },
+  { city: 'Hanford', county: 'Kings' },
+  { city: 'Madera', county: 'Madera' },
+]

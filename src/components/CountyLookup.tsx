@@ -1,6 +1,7 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import data from '../data/counties.json'
 import { flagged13D, ID } from '../data/facts'
+import { cities } from '../data/photos'
 import { Cite } from './Cite'
 
 type County = (typeof data.counties)[number]
@@ -19,6 +20,7 @@ export function CountyLookup() {
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
   const [countyName, setCountyName] = useState<string>('San Joaquin')
   const [cropRank, setCropRank] = useState(1)
+  const [cityNote, setCityNote] = useState('')
 
   const county: County =
     data.counties.find((c) => c.name === countyName) ?? data.counties[0]
@@ -109,6 +111,24 @@ export function CountyLookup() {
             Matched <strong>{status.place}</strong> to <strong>{status.county} County</strong>.
           </p>
         )}
+        <p className="mini">Or tap a city. The numbers are the county’s, because California publishes use by county, not by city.</p>
+        <div className="chips">
+          {cities.map((c) => (
+            <button
+              key={c.city}
+              type="button"
+              className={cityNote.startsWith(c.city) && countyName === c.county ? 'chip on' : 'chip'}
+              onClick={() => {
+                setCountyName(c.county)
+                setCropRank(1)
+                setCityNote(`${c.city} is in ${c.county} County.`)
+                setStatus({ kind: 'ok', county: c.county, place: c.city })
+              }}
+            >
+              {c.city}
+            </button>
+          ))}
+        </div>
         <label htmlFor="county" className="alt">Or choose a county</label>
         <select
           id="county"

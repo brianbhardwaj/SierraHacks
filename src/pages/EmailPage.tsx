@@ -1,3 +1,4 @@
+import { useSearchParams } from 'react-router-dom'
 import { Emailer } from '../components/Emailer'
 import { Reveal } from '../components/Motion'
 
@@ -9,6 +10,7 @@ const tips = [
 ]
 
 export function EmailPage() {
+  const [params] = useSearchParams()
   return (
     <>
       <Reveal as="section" className="page-head">
@@ -21,7 +23,7 @@ export function EmailPage() {
       </Reveal>
 
       <Reveal>
-        <Emailer />
+        <Emailer storeHint={params.get('store') ?? ''} />
       </Reveal>
 
       <section className="tips">

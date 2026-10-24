@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ID, SOURCES } from '../data/facts'
 import { Cite } from './Cite'
 
@@ -71,8 +71,12 @@ const facts: Record<FactKey, { label: string; text: string; src: number } | null
 
 type Tone = 'friendly' | 'firm'
 
-export function Emailer() {
+export function Emailer({ storeHint = '' }: { storeHint?: string }) {
   const [provider, setProvider] = useState<ProviderKey>('grocery')
+  const [storeName, setStoreName] = useState(storeHint)
+  useEffect(() => {
+    if (storeHint) setStoreName(storeHint)
+  }, [storeHint])
   const [picked, setPicked] = useState<AskKey[]>(['transparency', 'pollinators'])
   const [fact, setFact] = useState<FactKey>('milkweed')
   const [tone, setTone] = useState<Tone>('friendly')
@@ -95,7 +99,7 @@ export function Emailer() {
     const lines: string[] = [
       P.greeting,
       '',
-      `My name is ${who}. I live${where || ' in the Central Valley'}, and ${P.relation}. I care about the Valley’s bees, monarch butterflies, and waterways, so I’m writing to ask for your help.`,
+      `My name is ${who}. I live${where || ' in the Central Valley'}, and ${P.relation}${storeName.trim() ? ` (${storeName.trim()})` : ''}. I care about the Valley’s bees, monarch butterflies, and waterways, so I’m writing to ask for your help.`,
     ]
     if (f && src) {
       lines.push('', `One fact that stays with me: ${f.text} (Source: ${src.org}, ${src.url})`)
@@ -117,7 +121,7 @@ export function Emailer() {
         ? 'A customer question about pollinators and how your food is grown'
         : 'A customer question about how your food is grown'
     return { subject: subj, body: lines.join('\n') }
-  }, [provider, picked, fact, tone, name, city])
+  }, [provider, picked, fact, tone, name, city, storeName])
 
   const canSend = picked.length > 0
   const mailto = `mailto:${encodeURIComponent(to.trim())}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
@@ -178,6 +182,7 @@ export function Emailer() {
         <div className="fields">
           <label>Your name<input value={name} onChange={(e) => setName(e.target.value)} placeholder="Alex Rivera" autoComplete="name" /></label>
           <label>Your city<input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Manteca" autoComplete="address-level2" /></label>
+          <label>Store or farm name <small>(optional)</small><input value={storeName} onChange={(e) => setStoreName(e.target.value)} placeholder="The market on Yosemite Ave" /></label>
           <label>Their email <small>(optional)</small><input value={to} onChange={(e) => setTo(e.target.value)} placeholder="manager@store.com" type="email" autoComplete="off" /></label>
         </div>
         <div className="toggle" role="group" aria-label="Tone">
