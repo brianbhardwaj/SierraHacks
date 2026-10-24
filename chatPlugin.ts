@@ -100,6 +100,8 @@ export function chatPlugin(knowledge: string): Plugin {
       const barcode = (params.get('barcode') ?? '').replace(/\D/g, '')
       const q = (params.get('q') ?? '').trim().slice(0, 80)
       const headers = { 'User-Agent': 'Unspray/1.0 (SierraHacks student project)', Accept: 'application/json' }
+      const fields =
+        'code,product_name,generic_name,brands,quantity,image_front_small_url,image_front_url,image_url,categories,labels,labels_tags,ingredients_text,packaging'
       try {
         if (barcode) {
           const r = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`, { headers })
@@ -108,7 +110,7 @@ export function chatPlugin(knowledge: string): Plugin {
         }
         if (q.length >= 2) {
           const r = await fetch(
-            `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=6&fields=code,product_name,brands,image_front_small_url,categories,labels_tags,ingredients_text`,
+            `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=8&fields=${fields}`,
             { headers },
           )
           if (!r.ok) return send(res, 502, { error: 'product' })
@@ -117,6 +119,61 @@ export function chatPlugin(knowledge: string): Plugin {
         return send(res, 400, { error: 'bad-query' })
       } catch {
         return send(res, 502, { error: 'product' })
+      }
+    }
+
+    if (path === '/api/product-brief' && req.method === 'POST') {
+      if (!key) return send(res, 503, { error: 'no-key' })
+      try {
+        const parsed = JSON.parse(await readBody(req)) as {
+          product?: Record<string, unknown>
+          crop?: string
+          chemicals?: string[]
+          organic?: boolean
+        }
+        const product = parsed.product ?? {}
+        const crop = typeof parsed.crop === 'string' ? parsed.crop.slice(0, 80) : ''
+        const chemicals = Array.isArray(parsed.chemicals) ? parsed.chemicals.slice(0, 8).map(String) : []
+        const briefSystem = `You write a short shopper note for Unspray, a Central Valley pesticide site.
+Use ONLY the product fields and crop notes provided. Never invent a farm, a brand spray list, a residue test, or a health diagnosis.
+If a crop match and chemical list are given, say they are California county/crop totals, not this package.
+If organic is true, say that is a catalog label, not a lab test by this site.
+If you lack a fact, say so in one clause.
+Return JSON only: {"description":"","practices":"","alternatives":""}
+Each value is 1-3 sentences, plain language.`
+        const payload = JSON.stringify({
+          product,
+          crop: crop || null,
+          countyCropChemicals: chemicals,
+          organicLabel: Boolean(parsed.organic),
+        })
+        const base = process.env.OPENAI_BASE_URL ?? 'https://api.openai.com/v1'
+        const r = await fetch(`${base}/chat/completions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+          body: JSON.stringify({
+            model: process.env.UNSPRAY_MODEL ?? 'gpt-4o-mini',
+            temperature: 0.2,
+            max_tokens: 420,
+            response_format: { type: 'json_object' },
+            messages: [
+              { role: 'system', content: `${briefSystem}\n\nKNOWLEDGE:\n${knowledge}` },
+              { role: 'user', content: payload.slice(0, 4000) },
+            ],
+          }),
+        })
+        if (!r.ok) return send(res, 502, { error: 'upstream' })
+        const j = (await r.json()) as { choices?: { message?: { content?: string } }[] }
+        const text = j.choices?.[0]?.message?.content?.trim()
+        if (!text) return send(res, 502, { error: 'empty' })
+        const brief = JSON.parse(text) as { description?: string; practices?: string; alternatives?: string }
+        return send(res, 200, {
+          description: String(brief.description ?? '').slice(0, 800),
+          practices: String(brief.practices ?? '').slice(0, 800),
+          alternatives: String(brief.alternatives ?? '').slice(0, 800),
+        })
+      } catch {
+        return send(res, 500, { error: 'server' })
       }
     }
 

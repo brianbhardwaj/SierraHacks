@@ -5,16 +5,25 @@ import { Reveal } from '../components/Motion'
 import data from '../data/counties.json'
 import { flagged13D, ID } from '../data/facts'
 import { matchFood, type FoodMatch } from '../lib/foodMatch'
+import { parseScanned } from '../lib/scanCode'
 
 type OffProduct = {
   code?: string
   product_name?: string
+  generic_name?: string
   brands?: string
+  quantity?: string
   image_front_small_url?: string
+  image_front_url?: string
+  image_url?: string
   categories?: string
+  labels?: string
   labels_tags?: string[]
   ingredients_text?: string
+  packaging?: string
 }
+
+type Brief = { description: string; practices: string; alternatives: string }
 
 type Store = { name: string; kind: string }
 
@@ -26,8 +35,12 @@ type Hit = {
 }
 
 function asProduct(raw: OffProduct | undefined): OffProduct | null {
-  if (!raw?.product_name && !raw?.code) return null
+  if (!raw?.product_name && !raw?.generic_name && !raw?.code) return null
   return raw
+}
+
+function photo(p: OffProduct) {
+  return p.image_front_url || p.image_url || p.image_front_small_url
 }
 
 export function ProductPage() {
@@ -44,28 +57,13 @@ export function ProductPage() {
   const [scanning, setScanning] = useState(false)
   const [beam, setBeam] = useState(22)
   const [holding, setHolding] = useState(false)
+  const [brief, setBrief] = useState<Brief | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const scanRef = useRef<HTMLDivElement>(null)
   const stopRef = useRef<(() => void) | null>(null)
   const dragRef = useRef({ active: false, moved: false, startX: 0, startY: 0 })
 
   useEffect(() => () => stopRef.current?.(), [])
-
-  useEffect(() => {
-    if (holding) return
-    let y = beam
-    let dir = 1
-    let frame = 0
-    const tick = () => {
-      y += dir * 0.38
-      if (y >= 86) dir = -1
-      if (y <= 12) dir = 1
-      setBeam(y)
-      frame = window.requestAnimationFrame(tick)
-    }
-    frame = window.requestAnimationFrame(tick)
-    return () => window.cancelAnimationFrame(frame)
-  }, [holding])
 
   function stopScan() {
     stopRef.current?.()
@@ -74,23 +72,58 @@ export function ProductPage() {
   }
 
   async function loadPlace(zipCode: string) {
-    if (!/^\d{5}$/.test(zipCode)) return
+    if (!/^\d{5}$/.test(zipCode)) return ''
     const geoRes = await fetch(`/api/geo?q=${encodeURIComponent(zipCode)}`)
-    if (!geoRes.ok) return
+    if (!geoRes.ok) return ''
     const place = (await geoRes.json()) as { lat: number; lon: number; county: string; state: string }
-    if (place.state && place.state !== 'California') return
+    if (place.state && place.state !== 'California') return ''
     setCountyName(place.county)
     const storeRes = await fetch(`/api/stores?q=${encodeURIComponent(`${place.county || zipCode}, California`)}`)
     if (storeRes.ok) {
       const body = (await storeRes.json()) as { stores?: Store[] }
       setStores(body.stores ?? [])
     }
+    return place.county
+  }
+
+  async function loadBrief(product: OffProduct, match: FoodMatch, organic: boolean, chemicals: string[]) {
+    try {
+      const res = await fetch('/api/product-brief', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product: {
+            name: product.product_name,
+            generic: product.generic_name,
+            brands: product.brands,
+            quantity: product.quantity,
+            categories: product.categories,
+            labels: product.labels,
+            ingredients: product.ingredients_text,
+            packaging: product.packaging,
+            code: product.code,
+          },
+          crop: match.kind === 'crop' ? match.label : match.kind,
+          chemicals,
+          organic,
+        }),
+      })
+      if (!res.ok) return
+      const body = (await res.json()) as Brief
+      setBrief({
+        description: body.description ?? '',
+        practices: body.practices ?? '',
+        alternatives: body.alternatives ?? '',
+      })
+    } catch {
+      /* key unset or offline: the page still shows catalog fields */
+    }
   }
 
   async function choose(product: OffProduct) {
-    const blob = [product.product_name, product.brands, product.categories, product.ingredients_text].filter(Boolean).join(' ')
+    const blob = [product.product_name, product.generic_name, product.brands, product.categories, product.ingredients_text].filter(Boolean).join(' ')
     const match = matchFood(blob)
-    const organic = (product.labels_tags ?? []).some((t) => t.includes('organic'))
+    const organic = (product.labels_tags ?? []).some((t) => t.includes('organic')) || /organic/i.test(product.labels ?? '')
     setHit({ product, organic, match, fromCatalog: true })
     setChoices([])
     const altTerm = match.kind === 'crop' ? `organic ${match.label}` : `organic ${product.product_name ?? ''}`.trim()
@@ -99,27 +132,40 @@ export function ProductPage() {
       const body = (await altRes.json()) as { products?: OffProduct[] }
       setAlts((body.products ?? []).filter((p) => p.code !== product.code).slice(0, 4))
     }
-    if (/^\d{5}$/.test(zip.trim())) await loadPlace(zip.trim())
+    let chemicals: string[] = []
+    if (/^\d{5}$/.test(zip.trim())) {
+      const county = await loadPlace(zip.trim())
+      const row = data.counties.find((c) => c.name.toLowerCase() === county.toLowerCase())
+      const cropRow =
+        match.kind === 'crop'
+          ? row?.crops.find((c) => c.name.toLowerCase().includes(match.needle))
+          : undefined
+      chemicals = cropRow?.chems.map((c) => `${c.name} (${c.lbs.toLocaleString()} lb in ${row?.name} County, 2023)`) ?? []
+    }
+    await loadBrief(product, match, organic, chemicals)
   }
 
   async function lookup(raw: string) {
-    const text = raw.trim()
-    if (text.length < 2) {
-      setError('Type a product name or a barcode.')
+    const scanned = parseScanned(raw)
+    const barcode = scanned.barcode
+    const text = (scanned.query ?? raw).trim()
+    if (!barcode && text.length < 2) {
+      setError('Type a product name or a barcode, or scan a QR / ID code.')
       return
     }
     setBusy(true)
     setError('')
     setHit(null)
+    setBrief(null)
     setAlts([])
     setStores([])
     setCountyName('')
-    const digits = text.replace(/\D/g, '')
-    const isBarcode = digits.length >= 8 && digits.length <= 14 && digits === text.replace(/\s/g, '')
     try {
-      const res = await fetch(isBarcode ? `/api/product?barcode=${digits}` : `/api/product?q=${encodeURIComponent(text)}`)
+      const res = await fetch(
+        barcode ? `/api/product?barcode=${barcode}` : `/api/product?q=${encodeURIComponent(text)}`,
+      )
       if (!res.ok) {
-        if (!isBarcode) {
+        if (!barcode) {
           setHit({
             product: { product_name: text },
             organic: /organic/i.test(text),
@@ -128,15 +174,15 @@ export function ProductPage() {
           })
           if (/^\d{5}$/.test(zip.trim())) await loadPlace(zip.trim())
         } else {
-          setError('No answer for that barcode. The product catalog may be busy. Try the name on the package.')
+          setError('No answer for that code. The product catalog may be busy. Try the name on the package.')
         }
         setBusy(false)
         return
       }
       const body = (await res.json()) as { status?: number; product?: OffProduct; products?: OffProduct[] }
-      if (isBarcode) {
+      if (barcode) {
         const product = body.status === 1 ? asProduct(body.product) : null
-        if (!product) setError('No public record for that barcode. Try the name on the package.')
+        if (!product) setError('No public record for that code. Try the name on the package.')
         else await choose(product)
       } else {
         const products = (body.products ?? []).map(asProduct).filter((p): p is OffProduct => Boolean(p))
@@ -165,20 +211,44 @@ export function ProductPage() {
 
   async function startScan() {
     stopScan()
-    const Detector = (window as unknown as { BarcodeDetector?: new (opts: { formats: string[] }) => { detect: (src: HTMLVideoElement) => Promise<{ rawValue: string }[]> } }).BarcodeDetector
+    type DetectorAPI = {
+      getSupportedFormats?: () => Promise<string[]>
+      new (opts: { formats: string[] }): { detect: (src: HTMLVideoElement) => Promise<{ rawValue: string }[]> }
+    }
+    const Detector = (window as unknown as { BarcodeDetector?: DetectorAPI }).BarcodeDetector
     if (!Detector || !navigator.mediaDevices?.getUserMedia) {
-      setScanNote('This browser can’t scan barcodes. Type the number under the barcode instead.')
+      setScanNote('This browser can’t scan codes. Type the number under the barcode, or the text in the QR.')
       return
     }
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-      const video = videoRef.current
-      if (!video) return
-      video.srcObject = stream
-      await video.play()
       setScanning(true)
-      setScanNote('Point the camera at the barcode.')
-      const detector = new Detector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128'] })
+      setScanNote('Point the camera at a barcode or a product QR.')
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+      })
+      const video = videoRef.current
+      if (!video) {
+        stream.getTracks().forEach((t) => t.stop())
+        setScanning(false)
+        return
+      }
+      video.srcObject = stream
+      video.muted = true
+      await video.play()
+      if (video.readyState < 2) {
+        await new Promise<void>((resolve) => {
+          video.onloadeddata = () => resolve()
+        })
+      }
+      const wanted = ['qr_code', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'itf', 'data_matrix']
+      let formats = wanted
+      try {
+        const supported = await Detector.getSupportedFormats?.()
+        if (supported?.length) formats = wanted.filter((f) => supported.includes(f))
+      } catch {
+        formats = ['qr_code', 'ean_13', 'ean_8', 'upc_a', 'upc_e']
+      }
+      const detector = new Detector({ formats: formats.length ? formats : wanted })
       let alive = true
       stopRef.current = () => {
         alive = false
@@ -192,6 +262,7 @@ export function ProductPage() {
           const value = codes[0]?.rawValue
           if (value) {
             setQuery(value)
+            setScanNote('Code read. Looking up the package…')
             stopScan()
             void lookup(value)
             return
@@ -199,11 +270,12 @@ export function ProductPage() {
         } catch {
           /* keep trying */
         }
-        window.setTimeout(loop, 350)
+        window.setTimeout(loop, 280)
       }
       void loop()
     } catch {
-      setScanNote('Camera permission was blocked. Type the barcode instead.')
+      setScanning(false)
+      setScanNote('Camera permission was blocked. Type the barcode or QR text instead.')
     }
   }
 
@@ -286,7 +358,7 @@ export function ProductPage() {
               setHolding(false)
             }}
           >
-            <video ref={videoRef} className={scanning ? 'scanner on' : 'scanner'} muted playsInline />
+            <video ref={videoRef} className="scanner" muted playsInline autoPlay />
             <div className="scan-frame" aria-hidden="true" />
             <div className="scan-beam" aria-hidden="true" />
             <p className="scan-hint">
@@ -300,8 +372,8 @@ export function ProductPage() {
               {choices.map((p) => (
                 <li key={p.code}>
                   <button type="button" onClick={() => void choose(p)}>
-                    {p.image_front_small_url && <img src={p.image_front_small_url} alt="" />}
-                    <span><strong>{p.product_name}</strong><small>{p.brands}</small></span>
+                    {photo(p) && <img src={photo(p)} alt="" />}
+                    <span><strong>{p.product_name || p.generic_name}</strong><small>{p.brands}</small></span>
                   </button>
                 </li>
               ))}
@@ -317,12 +389,22 @@ export function ProductPage() {
                 <p className="note">The product catalog didn’t return a package for that name, so this uses your words plus California crop records. It is not a test of a specific brand.</p>
               )}
               <div className="product-head">
-                {hit.product.image_front_small_url && <img src={hit.product.image_front_small_url} alt="" />}
+                {photo(hit.product) && <img src={photo(hit.product)} alt="" />}
                 <div>
-                  <h2>{hit.product.product_name}</h2>
-                  <p>{hit.product.brands} {hit.product.code && <small>· {hit.product.code}</small>}</p>
+                  <h2>{hit.product.product_name || hit.product.generic_name}</h2>
+                  <p>{hit.product.brands} {hit.product.quantity} {hit.product.code && <small>· {hit.product.code}</small>}</p>
                 </div>
               </div>
+              {(hit.product.generic_name || hit.product.ingredients_text) && (
+                <p className="product-desc">
+                  {hit.product.generic_name ? <><strong>{hit.product.generic_name}.</strong> </> : null}
+                  {hit.product.ingredients_text}
+                </p>
+              )}
+              {hit.product.labels && <p className="note">Labels in the catalog: {hit.product.labels}</p>}
+              {brief?.description && <p>{brief.description}</p>}
+              {brief?.practices && <p>{brief.practices}</p>}
+              {brief?.alternatives && <p>{brief.alternatives}</p>}
               <p className={hit.organic ? 'ok' : 'alert'}>
                 {hit.organic
                   ? 'This record is tagged organic in Open Food Facts. That is a label on the product file, not a lab test by this site.'
@@ -378,8 +460,8 @@ export function ProductPage() {
                 {alts.map((p) => (
                   <li key={p.code}>
                     <button type="button" onClick={() => void choose(p)}>
-                      {p.image_front_small_url && <img src={p.image_front_small_url} alt="" />}
-                      <span><strong>{p.product_name}</strong><small>{p.brands}</small></span>
+                      {photo(p) && <img src={photo(p)} alt="" />}
+                      <span><strong>{p.product_name || p.generic_name}</strong><small>{p.brands}</small></span>
                     </button>
                   </li>
                 ))}
