@@ -1,0 +1,2092 @@
+{
+ "year": 2023,
+ "countyCount": 58,
+ "countySumLbs": 175714483,
+ "counties": [
+  {
+   "name": "Butte",
+   "lbs": 2892138,
+   "apps": 39236,
+   "acres": 1969498,
+   "rank": 15,
+   "crops": [
+    {
+     "rank": 1,
+     "name": "Rice",
+     "chems": [
+      {
+       "name": "Propanil",
+       "lbs": 581359
+      },
+      {
+       "name": "Copper sulfate (pentahydrate)",
+       "lbs": 441076
+      },
+      {
+       "name": "Mineral oil",
+       "lbs": 203648
+      },
+      {
+       "name": "Thiobencarb",
+       "lbs": 95285
+      },
+      {
+       "name": "Sodium percarbonate",
+       "lbs": 36332
+      }
+     ]
+    },
+    {
+     "rank": 2,
+     "name": "Walnut",
+     "chems": [
+      {
+       "name": "Copper hydroxide",
+       "lbs": 102864
+      },
+      {
+       "name": "Kaolin",
+       "lbs": 68904
+      },
+      {
+       "name": "Mancozeb",
+       "lbs": 58793
+      },
+      {
+       "name": "1,3-dichloropropene",
+       "lbs": 53813
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 51804
+      }
+     ]
+    },
+    {
+     "rank": 3,
+     "name": "Almond",
+     "chems": [
+      {
+       "name": "1,3-dichloropropene",
+       "lbs": 46007
+      },
+      {
+       "name": "Ziram",
+       "lbs": 35687
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 30596
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 16606
+      },
+      {
+       "name": "Chloropicrin",
+       "lbs": 13662
+      }
+     ]
+    },
+    {
+     "rank": 4,
+     "name": "Uncultivated ag",
+     "chems": [
+      {
+       "name": "1,3-dichloropropene",
+       "lbs": 63687
+      },
+      {
+       "name": "Chloropicrin",
+       "lbs": 4316
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 2794
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 577
+      },
+      {
+       "name": "Fatty acids, methyl esters",
+       "lbs": 551
+      }
+     ]
+    },
+    {
+     "rank": 5,
+     "name": "Prune",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 25717
+      },
+      {
+       "name": "Chlorothalonil",
+       "lbs": 11595
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 6922
+      },
+      {
+       "name": "Pendimethalin",
+       "lbs": 3774
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 2772
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Colusa",
+   "lbs": 2483361,
+   "apps": 41304,
+   "acres": 2540753,
+   "rank": 20,
+   "crops": [
+    {
+     "rank": 1,
+     "name": "Rice",
+     "chems": [
+      {
+       "name": "Propanil",
+       "lbs": 582465
+      },
+      {
+       "name": "Copper sulfate (pentahydrate)",
+       "lbs": 114565
+      },
+      {
+       "name": "Thiobencarb",
+       "lbs": 111522
+      },
+      {
+       "name": "Fatty acids, methyl esters",
+       "lbs": 82613
+      },
+      {
+       "name": "Mineral oil",
+       "lbs": 56830
+      }
+     ]
+    },
+    {
+     "rank": 2,
+     "name": "Almond",
+     "chems": [
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 100036
+      },
+      {
+       "name": "Chlorothalonil",
+       "lbs": 64393
+      },
+      {
+       "name": "Mineral oil",
+       "lbs": 24927
+      },
+      {
+       "name": "Ammonium sulfate",
+       "lbs": 20065
+      },
+      {
+       "name": "Methoxyfenozide",
+       "lbs": 19769
+      }
+     ]
+    },
+    {
+     "rank": 3,
+     "name": "Tomato, processing",
+     "chems": [
+      {
+       "name": "Kaolin",
+       "lbs": 132430
+      },
+      {
+       "name": "Sulfur",
+       "lbs": 72880
+      },
+      {
+       "name": "Chlorothalonil",
+       "lbs": 28404
+      },
+      {
+       "name": "S-metolachlor",
+       "lbs": 16749
+      },
+      {
+       "name": "Diazinon",
+       "lbs": 14766
+      }
+     ]
+    },
+    {
+     "rank": 4,
+     "name": "Walnut",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 37743
+      },
+      {
+       "name": "Copper hydroxide",
+       "lbs": 21366
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 21166
+      },
+      {
+       "name": "Mancozeb",
+       "lbs": 13925
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 11681
+      }
+     ]
+    },
+    {
+     "rank": 5,
+     "name": "Uncultivated ag",
+     "chems": [
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 47592
+      },
+      {
+       "name": "Fatty acids, methyl esters",
+       "lbs": 13558
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 10708
+      },
+      {
+       "name": "Oxyfluorfen",
+       "lbs": 3325
+      },
+      {
+       "name": "Ammonium sulfate",
+       "lbs": 2899
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Glenn",
+   "lbs": 2208872,
+   "apps": 41916,
+   "acres": 2090732,
+   "rank": 22,
+   "crops": [
+    {
+     "rank": 1,
+     "name": "Rice",
+     "chems": [
+      {
+       "name": "Propanil",
+       "lbs": 427236
+      },
+      {
+       "name": "Copper sulfate (pentahydrate)",
+       "lbs": 154137
+      },
+      {
+       "name": "Thiobencarb",
+       "lbs": 83037
+      },
+      {
+       "name": "Mineral oil",
+       "lbs": 34420
+      },
+      {
+       "name": "Ammonium sulfate",
+       "lbs": 15789
+      }
+     ]
+    },
+    {
+     "rank": 2,
+     "name": "Almond",
+     "chems": [
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 59320
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 53607
+      },
+      {
+       "name": "Ziram",
+       "lbs": 45692
+      },
+      {
+       "name": "Sulfur",
+       "lbs": 31466
+      },
+      {
+       "name": "Potassium phosphite",
+       "lbs": 27166
+      }
+     ]
+    },
+    {
+     "rank": 3,
+     "name": "Walnut",
+     "chems": [
+      {
+       "name": "Kaolin",
+       "lbs": 67062
+      },
+      {
+       "name": "Copper hydroxide",
+       "lbs": 55750
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 31870
+      },
+      {
+       "name": "Mancozeb",
+       "lbs": 27508
+      },
+      {
+       "name": "Ethephon",
+       "lbs": 16557
+      }
+     ]
+    },
+    {
+     "rank": 4,
+     "name": "Olive",
+     "chems": [
+      {
+       "name": "Copper hydroxide",
+       "lbs": 55976
+      },
+      {
+       "name": "Potassium phosphite",
+       "lbs": 5936
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 3773
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 2659
+      },
+      {
+       "name": "Glufosinate-ammonium",
+       "lbs": 2515
+      }
+     ]
+    },
+    {
+     "rank": 5,
+     "name": "Rights of way",
+     "chems": [
+      {
+       "name": "Endothall, dipotassium salt",
+       "lbs": 21709
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 21491
+      },
+      {
+       "name": "Diuron",
+       "lbs": 4782
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 3756
+      },
+      {
+       "name": "Mineral oil",
+       "lbs": 2757
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Sutter",
+   "lbs": 2658624,
+   "apps": 39290,
+   "acres": 1784483,
+   "rank": 17,
+   "crops": [
+    {
+     "rank": 1,
+     "name": "Rice",
+     "chems": [
+      {
+       "name": "Propanil",
+       "lbs": 490726
+      },
+      {
+       "name": "Copper sulfate (pentahydrate)",
+       "lbs": 187857
+      },
+      {
+       "name": "Mineral oil",
+       "lbs": 150512
+      },
+      {
+       "name": "Thiobencarb",
+       "lbs": 98902
+      },
+      {
+       "name": "Sodium percarbonate",
+       "lbs": 64374
+      }
+     ]
+    },
+    {
+     "rank": 2,
+     "name": "Walnut",
+     "chems": [
+      {
+       "name": "Copper hydroxide",
+       "lbs": 60106
+      },
+      {
+       "name": "Kaolin",
+       "lbs": 43553
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 26795
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 23867
+      },
+      {
+       "name": "Mancozeb",
+       "lbs": 23309
+      }
+     ]
+    },
+    {
+     "rank": 3,
+     "name": "Peach",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 78620
+      },
+      {
+       "name": "Sulfur",
+       "lbs": 25835
+      },
+      {
+       "name": "Ziram",
+       "lbs": 24785
+      },
+      {
+       "name": "1,3-dichloropropene",
+       "lbs": 18766
+      },
+      {
+       "name": "Copper hydroxide",
+       "lbs": 18581
+      }
+     ]
+    },
+    {
+     "rank": 4,
+     "name": "Tomato, processing",
+     "chems": [
+      {
+       "name": "Sulfur",
+       "lbs": 73086
+      },
+      {
+       "name": "Kaolin",
+       "lbs": 45206
+      },
+      {
+       "name": "Potassium n-methyldithiocarbamate",
+       "lbs": 13006
+      },
+      {
+       "name": "S-metolachlor",
+       "lbs": 10727
+      },
+      {
+       "name": "Chlorothalonil",
+       "lbs": 8430
+      }
+     ]
+    },
+    {
+     "rank": 5,
+     "name": "Prune",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 81216
+      },
+      {
+       "name": "Chlorothalonil",
+       "lbs": 25215
+      },
+      {
+       "name": "Sulfur",
+       "lbs": 15828
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 7345
+      },
+      {
+       "name": "Copper hydroxide",
+       "lbs": 5929
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Yuba",
+   "lbs": 916102,
+   "apps": 14436,
+   "acres": 582515,
+   "rank": 30,
+   "crops": [
+    {
+     "rank": 1,
+     "name": "Rice",
+     "chems": [
+      {
+       "name": "Propanil",
+       "lbs": 160466
+      },
+      {
+       "name": "Copper sulfate (pentahydrate)",
+       "lbs": 63728
+      },
+      {
+       "name": "Thiobencarb",
+       "lbs": 37912
+      },
+      {
+       "name": "Sodium chlorate",
+       "lbs": 31788
+      },
+      {
+       "name": "Mineral oil",
+       "lbs": 29264
+      }
+     ]
+    },
+    {
+     "rank": 2,
+     "name": "Walnut",
+     "chems": [
+      {
+       "name": "Copper hydroxide",
+       "lbs": 38573
+      },
+      {
+       "name": "Kaolin",
+       "lbs": 23356
+      },
+      {
+       "name": "Mancozeb",
+       "lbs": 20661
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 17450
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 8464
+      }
+     ]
+    },
+    {
+     "rank": 3,
+     "name": "Prune",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 51938
+      },
+      {
+       "name": "Chlorothalonil",
+       "lbs": 11648
+      },
+      {
+       "name": "Copper hydroxide",
+       "lbs": 4446
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 4121
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 2752
+      }
+     ]
+    },
+    {
+     "rank": 4,
+     "name": "Peach",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 29328
+      },
+      {
+       "name": "Ziram",
+       "lbs": 8648
+      },
+      {
+       "name": "Copper hydroxide",
+       "lbs": 6297
+      },
+      {
+       "name": "Sulfur",
+       "lbs": 4465
+      },
+      {
+       "name": "Cuprous oxide",
+       "lbs": 4137
+      }
+     ]
+    },
+    {
+     "rank": 5,
+     "name": "Kiwi fruit fuzzy",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 14054
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 7442
+      },
+      {
+       "name": "Pendimethalin",
+       "lbs": 1748
+      },
+      {
+       "name": "Oxyfluorfen",
+       "lbs": 916
+      },
+      {
+       "name": "Mefenoxam",
+       "lbs": 677
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Yolo",
+   "lbs": 3782762,
+   "apps": 44262,
+   "acres": 2112652,
+   "rank": 14,
+   "crops": [
+    {
+     "rank": 1,
+     "name": "Grape, wine",
+     "chems": [
+      {
+       "name": "Sulfur",
+       "lbs": 1434786
+      },
+      {
+       "name": "Mineral oil",
+       "lbs": 38146
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 12373
+      },
+      {
+       "name": "Glufosinate-ammonium",
+       "lbs": 9314
+      },
+      {
+       "name": "Kaolin",
+       "lbs": 6317
+      }
+     ]
+    },
+    {
+     "rank": 2,
+     "name": "Tomato, processing",
+     "chems": [
+      {
+       "name": "Sulfur",
+       "lbs": 230709
+      },
+      {
+       "name": "Chlorothalonil",
+       "lbs": 34966
+      },
+      {
+       "name": "S-metolachlor",
+       "lbs": 28939
+      },
+      {
+       "name": "Kaolin",
+       "lbs": 17765
+      },
+      {
+       "name": "Potassium n-methyldithiocarbamate",
+       "lbs": 13305
+      }
+     ]
+    },
+    {
+     "rank": 3,
+     "name": "Rice",
+     "chems": [
+      {
+       "name": "Propanil",
+       "lbs": 121652
+      },
+      {
+       "name": "Sodium percarbonate",
+       "lbs": 100271
+      },
+      {
+       "name": "Copper sulfate (pentahydrate)",
+       "lbs": 55882
+      },
+      {
+       "name": "Thiobencarb",
+       "lbs": 30228
+      },
+      {
+       "name": "Mineral oil",
+       "lbs": 28638
+      }
+     ]
+    },
+    {
+     "rank": 4,
+     "name": "Almond",
+     "chems": [
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 33364
+      },
+      {
+       "name": "Mineral oil",
+       "lbs": 31254
+      },
+      {
+       "name": "Sulfur",
+       "lbs": 26768
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 24299
+      },
+      {
+       "name": "Chlorothalonil",
+       "lbs": 23573
+      }
+     ]
+    },
+    {
+     "rank": 5,
+     "name": "Uncultivated ag",
+     "chems": [
+      {
+       "name": "Potassium n-methyldithiocarbamate",
+       "lbs": 176314
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 42857
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 17003
+      },
+      {
+       "name": "Fatty acids, methyl esters",
+       "lbs": 10381
+      },
+      {
+       "name": "Ammonium sulfate",
+       "lbs": 4078
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Sacramento",
+   "lbs": 4847854,
+   "apps": 39612,
+   "acres": 1342005,
+   "rank": 12,
+   "crops": [
+    {
+     "rank": 1,
+     "name": "Grape, wine",
+     "chems": [
+      {
+       "name": "Sulfur",
+       "lbs": 3150008
+      },
+      {
+       "name": "Mineral oil",
+       "lbs": 40478
+      },
+      {
+       "name": "Glufosinate-ammonium",
+       "lbs": 26604
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 24052
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 18240
+      }
+     ]
+    },
+    {
+     "rank": 2,
+     "name": "Pear",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 484468
+      },
+      {
+       "name": "Lime-sulfur",
+       "lbs": 51041
+      },
+      {
+       "name": "Mancozeb",
+       "lbs": 32467
+      },
+      {
+       "name": "Sulfur",
+       "lbs": 14744
+      },
+      {
+       "name": "Copper oxychloride",
+       "lbs": 6127
+      }
+     ]
+    },
+    {
+     "rank": 3,
+     "name": "Tomato, processing",
+     "chems": [
+      {
+       "name": "Sulfur",
+       "lbs": 99178
+      },
+      {
+       "name": "Chlorothalonil",
+       "lbs": 10859
+      },
+      {
+       "name": "S-metolachlor",
+       "lbs": 5626
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 4612
+      },
+      {
+       "name": "Ethephon",
+       "lbs": 3826
+      }
+     ]
+    },
+    {
+     "rank": 4,
+     "name": "Cannabis (all or unspecified)",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 118357
+      },
+      {
+       "name": "Hydrogen peroxide",
+       "lbs": 727
+      },
+      {
+       "name": "Margosa oil",
+       "lbs": 233
+      },
+      {
+       "name": "Potassium phosphite",
+       "lbs": 196
+      },
+      {
+       "name": "Burkholderia rinojensis strain a396",
+       "lbs": 194
+      }
+     ]
+    },
+    {
+     "rank": 5,
+     "name": "Rice",
+     "chems": [
+      {
+       "name": "Propanil",
+       "lbs": 45865
+      },
+      {
+       "name": "Mineral oil",
+       "lbs": 22690
+      },
+      {
+       "name": "Copper sulfate (pentahydrate)",
+       "lbs": 9201
+      },
+      {
+       "name": "Thiobencarb",
+       "lbs": 4626
+      },
+      {
+       "name": "Sodium chlorate",
+       "lbs": 4150
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "San Joaquin",
+   "lbs": 11040931,
+   "apps": 162090,
+   "acres": 5453742,
+   "rank": 4,
+   "crops": [
+    {
+     "rank": 1,
+     "name": "Grape, wine",
+     "chems": [
+      {
+       "name": "Sulfur",
+       "lbs": 5322627
+      },
+      {
+       "name": "1,3-dichloropropene",
+       "lbs": 156003
+      },
+      {
+       "name": "Glufosinate-ammonium",
+       "lbs": 48479
+      },
+      {
+       "name": "Lime-sulfur",
+       "lbs": 45981
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 42933
+      }
+     ]
+    },
+    {
+     "rank": 2,
+     "name": "Almond",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 384047
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 150481
+      },
+      {
+       "name": "1,3-dichloropropene",
+       "lbs": 83186
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 73257
+      },
+      {
+       "name": "Glufosinate-ammonium",
+       "lbs": 70334
+      }
+     ]
+    },
+    {
+     "rank": 3,
+     "name": "Tomato, processing",
+     "chems": [
+      {
+       "name": "Sulfur",
+       "lbs": 345000
+      },
+      {
+       "name": "Chlorothalonil",
+       "lbs": 44009
+      },
+      {
+       "name": "Potassium n-methyldithiocarbamate",
+       "lbs": 29951
+      },
+      {
+       "name": "S-metolachlor",
+       "lbs": 16034
+      },
+      {
+       "name": "Kaolin",
+       "lbs": 11688
+      }
+     ]
+    },
+    {
+     "rank": 4,
+     "name": "Walnut",
+     "chems": [
+      {
+       "name": "1,3-dichloropropene",
+       "lbs": 58789
+      },
+      {
+       "name": "Copper hydroxide",
+       "lbs": 54572
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 44488
+      },
+      {
+       "name": "Potassium phosphite",
+       "lbs": 37785
+      },
+      {
+       "name": "Mancozeb",
+       "lbs": 31251
+      }
+     ]
+    },
+    {
+     "rank": 5,
+     "name": "Cherry",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 125994
+      },
+      {
+       "name": "1,3-dichloropropene",
+       "lbs": 44572
+      },
+      {
+       "name": "Hydrogen cyanamide",
+       "lbs": 38230
+      },
+      {
+       "name": "Sulfur",
+       "lbs": 37920
+      },
+      {
+       "name": "Copper sulfate (pentahydrate)",
+       "lbs": 10878
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Stanislaus",
+   "lbs": 5532385,
+   "apps": 119151,
+   "acres": 4306932,
+   "rank": 11,
+   "crops": [
+    {
+     "rank": 1,
+     "name": "Almond",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 1056592
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 250281
+      },
+      {
+       "name": "1,3-dichloropropene",
+       "lbs": 217414
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 176290
+      },
+      {
+       "name": "Chlorothalonil",
+       "lbs": 119403
+      }
+     ]
+    },
+    {
+     "rank": 2,
+     "name": "Grape, wine",
+     "chems": [
+      {
+       "name": "Sulfur",
+       "lbs": 302039
+      },
+      {
+       "name": "Glufosinate-ammonium",
+       "lbs": 6383
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 4457
+      },
+      {
+       "name": "Lime-sulfur",
+       "lbs": 4369
+      },
+      {
+       "name": "Pendimethalin",
+       "lbs": 3531
+      }
+     ]
+    },
+    {
+     "rank": 3,
+     "name": "Walnut",
+     "chems": [
+      {
+       "name": "1,3-dichloropropene",
+       "lbs": 57964
+      },
+      {
+       "name": "Kaolin",
+       "lbs": 40415
+      },
+      {
+       "name": "Copper hydroxide",
+       "lbs": 26049
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 24106
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 21553
+      }
+     ]
+    },
+    {
+     "rank": 4,
+     "name": "Tomato, processing",
+     "chems": [
+      {
+       "name": "Sulfur",
+       "lbs": 126128
+      },
+      {
+       "name": "Chlorothalonil",
+       "lbs": 34068
+      },
+      {
+       "name": "1,3-dichloropropene",
+       "lbs": 33562
+      },
+      {
+       "name": "Potassium n-methyldithiocarbamate",
+       "lbs": 12129
+      },
+      {
+       "name": "S-metolachlor",
+       "lbs": 4438
+      }
+     ]
+    },
+    {
+     "rank": 5,
+     "name": "Animal premise",
+     "chems": [
+      {
+       "name": "Boric acid",
+       "lbs": 154256
+      },
+      {
+       "name": "Permethrin",
+       "lbs": 545
+      },
+      {
+       "name": "Piperonyl butoxide",
+       "lbs": 176
+      },
+      {
+       "name": "Novaluron",
+       "lbs": 65
+      },
+      {
+       "name": "Beta-cyfluthrin",
+       "lbs": 32
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Merced",
+   "lbs": 7096296,
+   "apps": 101871,
+   "acres": 5122000,
+   "rank": 6,
+   "crops": [
+    {
+     "rank": 1,
+     "name": "Almond",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 662844
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 165500
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 162086
+      },
+      {
+       "name": "1,3-dichloropropene",
+       "lbs": 83968
+      },
+      {
+       "name": "Glufosinate-ammonium",
+       "lbs": 82703
+      }
+     ]
+    },
+    {
+     "rank": 2,
+     "name": "Tomato, processing",
+     "chems": [
+      {
+       "name": "Sulfur",
+       "lbs": 900434
+      },
+      {
+       "name": "Chlorothalonil",
+       "lbs": 46496
+      },
+      {
+       "name": "S-metolachlor",
+       "lbs": 20103
+      },
+      {
+       "name": "Potassium n-methyldithiocarbamate",
+       "lbs": 14024
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 12302
+      }
+     ]
+    },
+    {
+     "rank": 3,
+     "name": "Sweet potato",
+     "chems": [
+      {
+       "name": "1,3-dichloropropene",
+       "lbs": 581561
+      },
+      {
+       "name": "Potassium n-methyldithiocarbamate",
+       "lbs": 250189
+      },
+      {
+       "name": "Burkholderia rinojensis strain a396",
+       "lbs": 8467
+      },
+      {
+       "name": "Chloropicrin",
+       "lbs": 6739
+      },
+      {
+       "name": "Ethoprop",
+       "lbs": 6371
+      }
+     ]
+    },
+    {
+     "rank": 4,
+     "name": "Grape, wine",
+     "chems": [
+      {
+       "name": "Sulfur",
+       "lbs": 542240
+      },
+      {
+       "name": "Lime-sulfur",
+       "lbs": 53319
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 40771
+      },
+      {
+       "name": "Glufosinate-ammonium",
+       "lbs": 24498
+      },
+      {
+       "name": "Oxyfluorfen",
+       "lbs": 7559
+      }
+     ]
+    },
+    {
+     "rank": 5,
+     "name": "N-outdr transplants",
+     "chems": [
+      {
+       "name": "Methyl bromide",
+       "lbs": 155669
+      },
+      {
+       "name": "Chloropicrin",
+       "lbs": 108638
+      },
+      {
+       "name": "Sulfur",
+       "lbs": 6270
+      },
+      {
+       "name": "Captan",
+       "lbs": 2516
+      },
+      {
+       "name": "1,3-dichloropropene",
+       "lbs": 2320
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Madera",
+   "lbs": 6668849,
+   "apps": 87979,
+   "acres": 4740830,
+   "rank": 7,
+   "crops": [
+    {
+     "rank": 1,
+     "name": "Almond",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 653192
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 164098
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 142503
+      },
+      {
+       "name": "Sulfuryl fluoride",
+       "lbs": 100312
+      },
+      {
+       "name": "Glufosinate-ammonium",
+       "lbs": 92518
+      }
+     ]
+    },
+    {
+     "rank": 2,
+     "name": "Grape, wine",
+     "chems": [
+      {
+       "name": "Sulfur",
+       "lbs": 1429704
+      },
+      {
+       "name": "Mineral oil",
+       "lbs": 41311
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 29087
+      },
+      {
+       "name": "1,3-dichloropropene",
+       "lbs": 25099
+      },
+      {
+       "name": "Glufosinate-ammonium",
+       "lbs": 22749
+      }
+     ]
+    },
+    {
+     "rank": 3,
+     "name": "Grape",
+     "chems": [
+      {
+       "name": "Sulfur",
+       "lbs": 1087333
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 13440
+      },
+      {
+       "name": "Glufosinate-ammonium",
+       "lbs": 10513
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 8939
+      },
+      {
+       "name": "Pendimethalin",
+       "lbs": 6356
+      }
+     ]
+    },
+    {
+     "rank": 4,
+     "name": "Pistachio",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 93279
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 70665
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 62595
+      },
+      {
+       "name": "Sulfur",
+       "lbs": 59608
+      },
+      {
+       "name": "Glufosinate-ammonium",
+       "lbs": 46645
+      }
+     ]
+    },
+    {
+     "rank": 5,
+     "name": "Tomato, processing",
+     "chems": [
+      {
+       "name": "Potassium n-methyldithiocarbamate",
+       "lbs": 90739
+      },
+      {
+       "name": "Sulfur",
+       "lbs": 52887
+      },
+      {
+       "name": "Chlorothalonil",
+       "lbs": 8856
+      },
+      {
+       "name": "S-metolachlor",
+       "lbs": 3642
+      },
+      {
+       "name": "Kaolin",
+       "lbs": 2280
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Fresno",
+   "lbs": 26288224,
+   "apps": 326724,
+   "acres": 15018923,
+   "rank": 1,
+   "crops": [
+    {
+     "rank": 1,
+     "name": "Tomato, processing",
+     "chems": [
+      {
+       "name": "Sulfur",
+       "lbs": 2432465
+      },
+      {
+       "name": "Potassium n-methyldithiocarbamate",
+       "lbs": 1873842
+      },
+      {
+       "name": "Kaolin",
+       "lbs": 133958
+      },
+      {
+       "name": "Chlorothalonil",
+       "lbs": 121789
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 56796
+      }
+     ]
+    },
+    {
+     "rank": 2,
+     "name": "Almond",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 2115188
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 243532
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 223312
+      },
+      {
+       "name": "Pendimethalin",
+       "lbs": 146335
+      },
+      {
+       "name": "Glufosinate-ammonium",
+       "lbs": 118840
+      }
+     ]
+    },
+    {
+     "rank": 3,
+     "name": "Grape",
+     "chems": [
+      {
+       "name": "Sulfur",
+       "lbs": 2806315
+      },
+      {
+       "name": "1,3-dichloropropene",
+       "lbs": 67023
+      },
+      {
+       "name": "Lime-sulfur",
+       "lbs": 47682
+      },
+      {
+       "name": "Mineral oil",
+       "lbs": 42518
+      },
+      {
+       "name": "Diatomaceous earth",
+       "lbs": 34389
+      }
+     ]
+    },
+    {
+     "rank": 4,
+     "name": "Grape, wine",
+     "chems": [
+      {
+       "name": "Sulfur",
+       "lbs": 1403019
+      },
+      {
+       "name": "1,3-dichloropropene",
+       "lbs": 55385
+      },
+      {
+       "name": "Mineral oil",
+       "lbs": 53436
+      },
+      {
+       "name": "Glufosinate-ammonium",
+       "lbs": 27272
+      },
+      {
+       "name": "Potassium bicarbonate",
+       "lbs": 23934
+      }
+     ]
+    },
+    {
+     "rank": 5,
+     "name": "Pistachio",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 645237
+      },
+      {
+       "name": "Sulfur",
+       "lbs": 198339
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 175722
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 131139
+      },
+      {
+       "name": "Glufosinate-ammonium",
+       "lbs": 78940
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Kings",
+   "lbs": 6256523,
+   "apps": 75503,
+   "acres": 5888396,
+   "rank": 8,
+   "crops": [
+    {
+     "rank": 1,
+     "name": "Tomato, processing",
+     "chems": [
+      {
+       "name": "Sulfur",
+       "lbs": 791687
+      },
+      {
+       "name": "Kaolin",
+       "lbs": 102342
+      },
+      {
+       "name": "Chlorothalonil",
+       "lbs": 45384
+      },
+      {
+       "name": "Diatomaceous earth",
+       "lbs": 14841
+      },
+      {
+       "name": "S-metolachlor",
+       "lbs": 8503
+      }
+     ]
+    },
+    {
+     "rank": 2,
+     "name": "Soil fumigation/preplant",
+     "chems": [
+      {
+       "name": "Potassium n-methyldithiocarbamate",
+       "lbs": 562697
+      },
+      {
+       "name": "Paraquat dichloride",
+       "lbs": 152891
+      },
+      {
+       "name": "Pendimethalin",
+       "lbs": 98328
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 34210
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 23936
+      }
+     ]
+    },
+    {
+     "rank": 3,
+     "name": "Pistachio",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 128956
+      },
+      {
+       "name": "Sulfur",
+       "lbs": 128543
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 82515
+      },
+      {
+       "name": "Diatomaceous earth",
+       "lbs": 43390
+      },
+      {
+       "name": "Glufosinate-ammonium",
+       "lbs": 38456
+      }
+     ]
+    },
+    {
+     "rank": 4,
+     "name": "Almond",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 331822
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 54246
+      },
+      {
+       "name": "Glufosinate-ammonium",
+       "lbs": 25807
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 25649
+      },
+      {
+       "name": "Potassium phosphite",
+       "lbs": 23338
+      }
+     ]
+    },
+    {
+     "rank": 5,
+     "name": "Cotton",
+     "chems": [
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 73757
+      },
+      {
+       "name": "Urea dihydrogen sulfate",
+       "lbs": 51899
+      },
+      {
+       "name": "Oxamyl",
+       "lbs": 50146
+      },
+      {
+       "name": "Malathion",
+       "lbs": 47047
+      },
+      {
+       "name": "Naled",
+       "lbs": 44032
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Tulare",
+   "lbs": 16798434,
+   "apps": 307919,
+   "acres": 8313878,
+   "rank": 3,
+   "crops": [
+    {
+     "rank": 1,
+     "name": "Orange",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 2442069
+      },
+      {
+       "name": "Calcium hydroxide",
+       "lbs": 1833660
+      },
+      {
+       "name": "Copper sulfate (basic)",
+       "lbs": 269520
+      },
+      {
+       "name": "Kaolin",
+       "lbs": 120513
+      },
+      {
+       "name": "Copper hydroxide",
+       "lbs": 57214
+      }
+     ]
+    },
+    {
+     "rank": 2,
+     "name": "Grape",
+     "chems": [
+      {
+       "name": "Sulfur",
+       "lbs": 1518303
+      },
+      {
+       "name": "Lime-sulfur",
+       "lbs": 171677
+      },
+      {
+       "name": "Mineral oil",
+       "lbs": 110247
+      },
+      {
+       "name": "Copper oxychloride",
+       "lbs": 92765
+      },
+      {
+       "name": "Sulfur dioxide",
+       "lbs": 56700
+      }
+     ]
+    },
+    {
+     "rank": 3,
+     "name": "Tangerine",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 765510
+      },
+      {
+       "name": "Kaolin",
+       "lbs": 373022
+      },
+      {
+       "name": "Calcium hydroxide",
+       "lbs": 338362
+      },
+      {
+       "name": "Copper sulfate (basic)",
+       "lbs": 74353
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 28125
+      }
+     ]
+    },
+    {
+     "rank": 4,
+     "name": "Almond",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 874779
+      },
+      {
+       "name": "Glyphosate, isopropylamine salt",
+       "lbs": 82359
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 53048
+      },
+      {
+       "name": "Pendimethalin",
+       "lbs": 43710
+      },
+      {
+       "name": "Glufosinate-ammonium",
+       "lbs": 40485
+      }
+     ]
+    },
+    {
+     "rank": 5,
+     "name": "Lemon",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 425050
+      },
+      {
+       "name": "Calcium hydroxide",
+       "lbs": 310365
+      },
+      {
+       "name": "Copper sulfate (basic)",
+       "lbs": 41516
+      },
+      {
+       "name": "Kaolin",
+       "lbs": 15701
+      },
+      {
+       "name": "Copper hydroxide",
+       "lbs": 8702
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Kern",
+   "lbs": 24295677,
+   "apps": 206435,
+   "acres": 11504279,
+   "rank": 2,
+   "crops": [
+    {
+     "rank": 1,
+     "name": "Almond",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 2293483
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 452646
+      },
+      {
+       "name": "Sulfur",
+       "lbs": 344215
+      },
+      {
+       "name": "1,3-dichloropropene",
+       "lbs": 343296
+      },
+      {
+       "name": "Chloropicrin",
+       "lbs": 182004
+      }
+     ]
+    },
+    {
+     "rank": 2,
+     "name": "Grape",
+     "chems": [
+      {
+       "name": "Sulfur",
+       "lbs": 2655903
+      },
+      {
+       "name": "Lime-sulfur",
+       "lbs": 331441
+      },
+      {
+       "name": "Calcium hydroxide",
+       "lbs": 127617
+      },
+      {
+       "name": "1,3-dichloropropene",
+       "lbs": 127108
+      },
+      {
+       "name": "Copper oxychloride",
+       "lbs": 108595
+      }
+     ]
+    },
+    {
+     "rank": 3,
+     "name": "Orange",
+     "chems": [
+      {
+       "name": "Mineral oil",
+       "lbs": 1392829
+      },
+      {
+       "name": "Calcium hydroxide",
+       "lbs": 600624
+      },
+      {
+       "name": "Copper sulfate (basic)",
+       "lbs": 66516
+      },
+      {
+       "name": "1,3-dichloropropene",
+       "lbs": 59390
+      },
+      {
+       "name": "Kaolin",
+       "lbs": 45165
+      }
+     ]
+    },
+    {
+     "rank": 4,
+     "name": "Pistachio",
+     "chems": [
+      {
+       "name": "Sulfur",
+       "lbs": 744644
+      },
+      {
+       "name": "Mineral oil",
+       "lbs": 353328
+      },
+      {
+       "name": "Glyphosate, potassium salt",
+       "lbs": 260973
+      },
+      {
+       "name": "Ammonium sulfate",
+       "lbs": 109807
+      },
+      {
+       "name": "Buprofezin",
+       "lbs": 87039
+      }
+     ]
+    },
+    {
+     "rank": 5,
+     "name": "Carrot",
+     "chems": [
+      {
+       "name": "Metam-sodium",
+       "lbs": 825202
+      },
+      {
+       "name": "Potassium n-methyldithiocarbamate",
+       "lbs": 528975
+      },
+      {
+       "name": "Sulfur",
+       "lbs": 191399
+      },
+      {
+       "name": "1,3-dichloropropene",
+       "lbs": 98048
+      },
+      {
+       "name": "Linuron",
+       "lbs": 13198
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
