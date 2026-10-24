@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent, type PointerEvent as ReactPointerEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { Cite } from '../components/Cite'
 import { Reveal } from '../components/Motion'
@@ -42,10 +42,30 @@ export function ProductPage() {
   const [alts, setAlts] = useState<OffProduct[]>([])
   const [scanNote, setScanNote] = useState('')
   const [scanning, setScanning] = useState(false)
+  const [beam, setBeam] = useState(22)
+  const [holding, setHolding] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const scanRef = useRef<HTMLDivElement>(null)
   const stopRef = useRef<(() => void) | null>(null)
+  const dragRef = useRef({ active: false, moved: false, startX: 0, startY: 0 })
 
   useEffect(() => () => stopRef.current?.(), [])
+
+  useEffect(() => {
+    if (holding) return
+    let y = beam
+    let dir = 1
+    let frame = 0
+    const tick = () => {
+      y += dir * 0.38
+      if (y >= 86) dir = -1
+      if (y <= 12) dir = 1
+      setBeam(y)
+      frame = window.requestAnimationFrame(tick)
+    }
+    frame = window.requestAnimationFrame(tick)
+    return () => window.cancelAnimationFrame(frame)
+  }, [holding])
 
   function stopScan() {
     stopRef.current?.()
@@ -218,8 +238,62 @@ export function ProductPage() {
               </button>
             </div>
           </form>
+          <div
+            ref={scanRef}
+            className={`scan-stage${scanning ? ' live' : ''}${holding ? ' hold' : ''}`}
+            style={{ ['--beam' as string]: `${beam}%` }}
+            role="button"
+            tabIndex={0}
+            aria-label={scanning ? 'Live scanner. Drag the beam, or click to stop the camera.' : 'Scanner. Click to open the camera. Drag the beam to aim it.'}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                if (scanning) stopScan()
+                else void startScan()
+              }
+            }}
+            onPointerDown={(e: ReactPointerEvent<HTMLDivElement>) => {
+              if ((e.target as HTMLElement).closest('button')) return
+              dragRef.current = { active: true, moved: false, startX: e.clientX, startY: e.clientY }
+              setHolding(true)
+              e.currentTarget.setPointerCapture(e.pointerId)
+              const box = scanRef.current
+              if (!box) return
+              const r = box.getBoundingClientRect()
+              setBeam(Math.min(88, Math.max(10, ((e.clientY - r.top) / r.height) * 100)))
+            }}
+            onPointerMove={(e: ReactPointerEvent<HTMLDivElement>) => {
+              if (!dragRef.current.active) return
+              if (Math.abs(e.clientX - dragRef.current.startX) + Math.abs(e.clientY - dragRef.current.startY) > 6) {
+                dragRef.current.moved = true
+              }
+              const box = scanRef.current
+              if (!box) return
+              const r = box.getBoundingClientRect()
+              setBeam(Math.min(88, Math.max(10, ((e.clientY - r.top) / r.height) * 100)))
+            }}
+            onPointerUp={() => {
+              const wasDrag = dragRef.current.moved
+              dragRef.current.active = false
+              setHolding(false)
+              if (!wasDrag) {
+                if (scanning) stopScan()
+                else void startScan()
+              }
+            }}
+            onPointerCancel={() => {
+              dragRef.current.active = false
+              setHolding(false)
+            }}
+          >
+            <video ref={videoRef} className={scanning ? 'scanner on' : 'scanner'} muted playsInline />
+            <div className="scan-frame" aria-hidden="true" />
+            <div className="scan-beam" aria-hidden="true" />
+            <p className="scan-hint">
+              {scanning ? 'Drag the beam to aim. Click to stop.' : 'Click to scan. Drag the beam to preview.'}
+            </p>
+          </div>
           {scanNote && <p className="note">{scanNote}</p>}
-          <video ref={videoRef} className={scanning ? 'scanner on' : 'scanner'} muted playsInline />
           {error && <p className="alert" role="alert">{error}</p>}
           {choices.length > 0 && (
             <ul className="choice-list">

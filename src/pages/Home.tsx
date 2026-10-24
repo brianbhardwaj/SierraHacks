@@ -17,38 +17,36 @@ export function Home() {
   return (
     <div className="home-page">
       <style>{`
-        .home-page { padding-bottom: 1rem; }
-        .home-hero { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 2.8rem; align-items: center; padding: 1.6rem 0 2.4rem; }
-        .home-hero h1 { font-size: clamp(4.6rem, 12vw, 8.6rem); letter-spacing: -0.06em; line-height: 0.82; margin: 0 0 0.35rem; color: #0c2418; }
-        .home-hero .slogan { font-family: var(--display); font-size: clamp(1.35rem, 2.6vw, 1.85rem); font-weight: 500; color: var(--green-deep); margin: 0 0 0.9rem; }
-        .home-hero .sub { max-width: 28rem; }
-        .home-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; margin: 1.1rem 0 0; }
-        .home-glass { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
-        .home-glass a { display: flex; flex-direction: column; justify-content: space-between; min-height: 7.2rem; padding: 1rem 1.05rem 0.95rem; text-decoration: none; color: #10281c; border-radius: 20px; background: rgba(255,255,255,0.38); border: 1px solid rgba(255,255,255,0.55); box-shadow: 0 8px 28px rgba(16,40,28,0.06); backdrop-filter: blur(16px); transition: transform 0.22s ease, background 0.22s ease; }
-        .home-glass a:hover { transform: translateY(-4px); background: rgba(255,255,255,0.62); }
-        .home-glass a:first-child { grid-column: 1 / -1; min-height: 5.6rem; flex-direction: row; align-items: center; gap: 1rem; background: rgba(47,158,99,0.18); }
-        .home-glass strong { font-family: var(--display); font-size: 1.12rem; }
-        .home-glass p { margin: 0.25rem 0 0; color: var(--mute); font-size: 0.9rem; }
-        .home-glass span { margin-top: 0.7rem; font-family: var(--display); font-weight: 600; font-size: 0.82rem; color: var(--green-deep); }
-        .home-glass a:first-child p { margin-top: 0.15rem; }
-        .home-topic { display: grid; grid-template-columns: minmax(200px, 0.7fr) 1.2fr; gap: 1.6rem; align-items: center; margin: 0.4rem 0 2.1rem; padding: 0.2rem 0 0; }
-        .home-topic.reverse { grid-template-columns: 1.2fr minmax(200px, 0.7fr); }
-        .home-topic img { width: 100%; height: 220px; object-fit: cover; border-radius: 22px; display: block; }
-        .home-topic h2 { margin: 0.15rem 0 0.7rem; letter-spacing: -0.03em; color: #10281c; }
+        .home-page { padding-bottom: 0.4rem; }
+        .home-hero { display: grid; grid-template-columns: minmax(17rem, 0.92fr) minmax(20rem, 1.18fr); gap: 3.2rem; align-items: start; padding: 2.2rem 0 2.8rem; }
+        .home-hero h1 { font-size: clamp(4.4rem, 11vw, 8rem); letter-spacing: -0.06em; line-height: 0.84; margin: 0 0 0.4rem; color: #243028; }
+        .home-hero .slogan { font-family: var(--display); font-size: clamp(1.3rem, 2.4vw, 1.75rem); font-weight: 500; color: var(--green-deep); margin: 0 0 1rem; }
+        .home-hero .sub { max-width: 30rem; }
+        .home-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; margin: 1.25rem 0 0; }
+        .home-glass { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+        .home-glass a { display: flex; flex-direction: column; justify-content: space-between; min-height: 7rem; padding: 1.05rem 1.1rem 1rem; text-decoration: none; color: #243028; border-radius: 20px; background: rgba(252,253,251,0.55); border: 1px solid rgba(255,255,255,0.7); box-shadow: 0 8px 28px rgba(45,71,48,0.05); backdrop-filter: blur(16px); transition: transform 0.22s ease, background 0.22s ease; }
+        .home-glass a:hover { transform: translateY(-3px); background: rgba(252,253,251,0.88); }
+        .home-glass strong { font-family: var(--display); font-size: 1.08rem; line-height: 1.2; }
+        .home-glass p { margin: 0.3rem 0 0; color: var(--mute); font-size: 0.88rem; line-height: 1.45; }
+        .home-glass span { margin-top: 0.85rem; font-family: var(--display); font-weight: 600; font-size: 0.8rem; color: var(--green-deep); }
+        .home-topic { display: grid; grid-template-columns: minmax(220px, 0.78fr) 1.22fr; gap: 2.2rem; align-items: center; margin: 0.6rem 0 2.6rem; }
+        .home-topic.reverse { grid-template-columns: 1.22fr minmax(220px, 0.78fr); }
+        .home-topic img { width: 100%; height: 260px; object-fit: cover; border-radius: 24px; display: block; }
+        .home-topic h2 { margin: 0.15rem 0 0.75rem; letter-spacing: -0.03em; color: #10281c; }
         .home-topic p { color: var(--mute); max-width: 38rem; }
-        .home-split { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; margin: 0 0 2.2rem; }
-        .home-split article { padding: 1.35rem 1.45rem 1.4rem; border-radius: 22px; background: rgba(255,255,255,0.42); border: 1px solid rgba(255,255,255,0.55); backdrop-filter: blur(16px); }
-        .home-split h2 { margin: 0.15rem 0 0.7rem; letter-spacing: -0.03em; color: #10281c; }
-        .home-split p { color: var(--mute); margin: 0 0 0.7rem; }
+        .home-split { display: grid; grid-template-columns: 1fr 1fr; gap: 1.15rem; margin: 0 0 2.8rem; align-items: stretch; }
+        .home-split article { padding: 1.55rem 1.6rem 1.6rem; border-radius: 24px; background: rgba(252,253,251,0.62); border: 1px solid rgba(255,255,255,0.72); backdrop-filter: blur(16px); }
+        .home-split h2 { margin: 0.15rem 0 0.75rem; letter-spacing: -0.03em; color: #10281c; }
+        .home-split p { color: var(--mute); margin: 0 0 0.75rem; }
         .home-split p:last-child { margin: 0; }
-        .home-who { display: grid; gap: 0.45rem; margin: 0.2rem 0 0; padding: 0; list-style: none; }
-        .home-who li { color: var(--mute); padding: 0.15rem 0; }
+        .home-who { display: grid; gap: 0.55rem; margin: 0.35rem 0 0; padding: 0; list-style: none; }
+        .home-who li { color: var(--mute); padding: 0.2rem 0; line-height: 1.5; }
         .home-who strong { font-family: var(--display); font-weight: 600; color: #10281c; }
         @media (max-width: 860px) {
-          .home-hero, .home-glass, .home-glass a:first-child, .home-split { grid-template-columns: 1fr; }
-          .home-glass a:first-child { flex-direction: column; align-items: flex-start; }
-          .home-topic, .home-topic.reverse { grid-template-columns: 1fr; }
-          .home-topic img { height: 180px; }
+          .home-hero, .home-glass, .home-split { grid-template-columns: 1fr; }
+          .home-hero { gap: 1.8rem; padding-top: 1.4rem; }
+          .home-topic, .home-topic.reverse { grid-template-columns: 1fr; gap: 1rem; }
+          .home-topic img { height: 200px; }
         }
       `}</style>
 
