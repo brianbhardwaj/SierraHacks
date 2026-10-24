@@ -2,114 +2,78 @@ import { Link } from 'react-router-dom'
 import { Cite } from '../components/Cite'
 import { ID } from '../data/facts'
 
-const tools = [
-  { to: '/product', name: 'Check food', body: 'Scan a barcode or type a name', tone: 'glow', shape: 'wide' },
-  { to: '/near', name: 'Your zip', body: 'See markets mapped around your zip', tone: 'mint', shape: 'indent' },
-  { to: '/email', name: 'Email', body: 'Ask a store how the food is grown', tone: 'cream', shape: 'short' },
-  { to: '/report', name: 'Report', body: 'File a complaint with a ready script', tone: 'warn', shape: 'indent' },
-]
-
-const learn = [
-  { to: '/ecosystem', name: 'Problem', body: 'Wildlife evidence, with sources', tone: 'forest', shape: 'wide' },
-  { to: '/data', name: 'Data', body: 'County charts and city totals', tone: 'mint', shape: 'short' },
-  { to: '/plant', name: 'Plant', body: 'Native seed and milkweed to buy', tone: 'cream', shape: 'indent' },
-  { to: '/ask', name: 'Ask', body: 'Tell Sprout your situation', tone: 'forest', shape: 'short' },
+const cards = [
+  { to: '/product', name: 'Check food', body: 'Scan a barcode or type a name' },
+  { to: '/near', name: 'Your zip', body: 'Markets mapped around your zip' },
+  { to: '/data', name: 'Data', body: 'County charts and city totals' },
+  { to: '/ecosystem', name: 'Problem', body: 'Wildlife evidence, with sources' },
+  { to: '/email', name: 'Email', body: 'Ask a store how food is grown' },
+  { to: '/report', name: 'Report', body: 'A complaint script for 1-87PestLine' },
+  { to: '/plant', name: 'Plant', body: 'Native seed and milkweed to buy' },
+  { to: '/ask', name: 'Ask', body: 'Tell Sprout your situation' },
 ]
 
 export function Home() {
   return (
     <div className="home-page">
       <style>{`
+        .shell:has(.home-page) .top-nav a { display: none; }
+        .shell:has(.home-page) .top-nav a[href="#/"],
+        .shell:has(.home-page) .top-nav a[href="#/product"],
+        .shell:has(.home-page) .top-nav a[href="#/near"] { display: inline-flex; }
         .home-page { padding-bottom: 1rem; }
-        .home-intro { padding: 2.4rem 0 1.8rem; }
-        .home-intro-inner { max-width: 40rem; }
-        .home-intro h1 { font-size: clamp(3.2rem, 8vw, 5.4rem); letter-spacing: -0.04em; line-height: 0.95; margin: 0 0 0.7rem; color: #0c2418; }
-        .home-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; margin: 1.2rem 0 0; }
-        .home-group { margin: 0 0 1.6rem; }
-        .home-group h2 { font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green); margin: 0 0 0.65rem; }
-        .home-bars { display: grid; gap: 0.55rem; }
-        .home-bar { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.9rem; text-decoration: none; color: inherit; min-height: 3.2rem; padding: 0.4rem 0.45rem 0.4rem 0.4rem; border-radius: 16px; border: 1px solid transparent; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .home-bar:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(16,40,28,0.1); }
-        .home-bar .tab { display: inline-flex; align-items: center; justify-content: center; min-height: 2.25rem; padding: 0.35rem 0.85rem; border-radius: 999px; font-family: var(--display); font-weight: 600; font-size: 0.92rem; white-space: nowrap; }
-        .home-bar p { margin: 0; font-size: 0.95rem; }
-        .home-bar .go { font-family: var(--display); font-weight: 600; font-size: 0.86rem; padding: 0.38rem 0.8rem; border-radius: 999px; }
-        .home-bar.wide { width: 100%; }
-        .home-bar.indent { width: 92%; margin-left: 8%; }
-        .home-bar.short { width: 86%; }
-        .home-bar.glow { background: linear-gradient(90deg, #1a6b43, #2f9e63); color: #fff; }
-        .home-bar.glow p, .home-bar.glow .go { color: #e8fff2; }
-        .home-bar.glow .tab { background: rgba(255,255,255,0.18); color: #fff; }
-        .home-bar.glow .go { background: rgba(255,255,255,0.16); }
-        .home-bar.forest { background: #143528; color: #e8fff2; }
-        .home-bar.forest p { color: #c5e4d2; }
-        .home-bar.forest .tab { background: #2f9e63; color: #fff; }
-        .home-bar.forest .go { background: rgba(255,255,255,0.1); color: #fff; }
-        .home-bar.mint { background: #e7f6ee; }
-        .home-bar.mint .tab { background: #2f9e63; color: #fff; }
-        .home-bar.mint p { color: #1d6b45; }
-        .home-bar.mint .go { background: #fff; color: #1d6b45; }
-        .home-bar.cream { background: #fff8e8; }
-        .home-bar.cream .tab { background: #c2762b; color: #fff; }
-        .home-bar.cream p { color: #6b4a22; }
-        .home-bar.cream .go { background: #fff; color: #8a4d12; }
-        .home-bar.warn { background: #fff1e4; }
-        .home-bar.warn .tab { background: #9a4a1e; color: #fff; }
-        .home-bar.warn p { color: #8a4d12; }
-        .home-bar.warn .go { background: #fff; color: #9a4a1e; }
+        .home-hero { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 2.8rem; align-items: center; padding: 1.6rem 0 2.4rem; }
+        .home-hero h1 { font-size: clamp(4.6rem, 12vw, 8.6rem); letter-spacing: -0.06em; line-height: 0.82; margin: 0 0 0.35rem; color: #0c2418; }
+        .home-hero .slogan { font-family: var(--display); font-size: clamp(1.35rem, 2.6vw, 1.85rem); font-weight: 500; color: var(--green-deep); margin: 0 0 0.9rem; }
+        .home-hero .sub { max-width: 28rem; }
+        .home-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; margin: 1.1rem 0 0; }
+        .home-glass { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+        .home-glass a { display: flex; flex-direction: column; justify-content: space-between; min-height: 7.2rem; padding: 1rem 1.05rem 0.95rem; text-decoration: none; color: #10281c; border-radius: 20px; background: rgba(255,255,255,0.38); border: 1px solid rgba(255,255,255,0.55); box-shadow: 0 8px 28px rgba(16,40,28,0.06); backdrop-filter: blur(16px); transition: transform 0.22s ease, background 0.22s ease; }
+        .home-glass a:hover { transform: translateY(-4px); background: rgba(255,255,255,0.62); }
+        .home-glass a:first-child { grid-column: 1 / -1; min-height: 5.6rem; flex-direction: row; align-items: center; gap: 1rem; background: rgba(47,158,99,0.18); }
+        .home-glass strong { font-family: var(--display); font-size: 1.12rem; }
+        .home-glass p { margin: 0.25rem 0 0; color: var(--mute); font-size: 0.9rem; }
+        .home-glass span { margin-top: 0.7rem; font-family: var(--display); font-weight: 600; font-size: 0.82rem; color: var(--green-deep); }
+        .home-glass a:first-child p { margin-top: 0.15rem; }
         .home-topic { display: grid; grid-template-columns: minmax(200px, 0.7fr) 1.2fr; gap: 1.4rem; align-items: center; margin: 0 0 1.8rem; }
         .home-topic.reverse { grid-template-columns: 1.2fr minmax(200px, 0.7fr); }
         .home-topic img { width: 100%; height: 210px; object-fit: cover; border-radius: 18px; display: block; }
         .home-topic h2 { margin-top: 0; }
         .home-topic p { color: var(--mute); }
-        @media (max-width: 760px) {
-          .home-bar, .home-bar.indent, .home-bar.short { width: 100%; margin: 0; grid-template-columns: 1fr auto; }
-          .home-bar p { grid-column: 1 / -1; padding: 0 0.45rem 0.35rem; }
+        @media (max-width: 860px) {
+          .home-hero, .home-glass, .home-glass a:first-child { grid-template-columns: 1fr; }
+          .home-glass a:first-child { flex-direction: column; align-items: flex-start; }
           .home-topic, .home-topic.reverse { grid-template-columns: 1fr; }
           .home-topic img { height: 180px; }
         }
       `}</style>
 
-      <section className="home-intro">
-        <div className="home-intro-inner">
-          <p className="kicker">Unspray · Central Valley</p>
-          <h1>Know what’s sprayed.</h1>
+      <section className="home-hero">
+        <div>
+          <p className="kicker">Central Valley</p>
+          <h1>Unspray</h1>
+          <p className="slogan">Know what’s sprayed.</p>
           <p className="sub">
-            Public pesticide records for Central Valley agriculture, plus tools to check a product,
-            find stores near a zip, and ask the people who sell your food. The Valley grows a quarter
-            of the nation’s food<Cite n={[ID.xercesCV]} />. Spray pounds are public by county and crop.
+            Public pesticide records for Central Valley agriculture. The Valley grows a quarter of
+            the nation’s food<Cite n={[ID.xercesCV]} />. Spray pounds are public by county and crop.
             They are not on the package.
           </p>
           <div className="home-actions">
             <Link className="btn glow" to="/product">Check a product</Link>
-            <Link className="btn ghost" to="/near">Markets near a zip</Link>
+            <Link className="btn ghost" to="/near">Your zip</Link>
           </div>
         </div>
-      </section>
-
-      <section className="home-group">
-        <h2>Tools</h2>
-        <div className="home-bars">
-          {tools.map((p) => (
-            <Link key={p.to} className={`home-bar ${p.tone} ${p.shape}`} to={p.to}>
-              <span className="tab">{p.name}</span>
-              <p>{p.body}</p>
-              <span className="go">Open →</span>
+        <nav className="home-glass" aria-label="Pages">
+          {cards.map((p) => (
+            <Link key={p.to} to={p.to}>
+              <div>
+                <strong>{p.name}</strong>
+                <p>{p.body}</p>
+              </div>
+              <span>Open →</span>
             </Link>
           ))}
-        </div>
-      </section>
-
-      <section className="home-group">
-        <h2>Learn</h2>
-        <div className="home-bars">
-          {learn.map((p) => (
-            <Link key={p.to} className={`home-bar ${p.tone} ${p.shape}`} to={p.to}>
-              <span className="tab">{p.name}</span>
-              <p>{p.body}</p>
-              <span className="go">Open →</span>
-            </Link>
-          ))}
-        </div>
+        </nav>
       </section>
 
       <article className="home-topic">
