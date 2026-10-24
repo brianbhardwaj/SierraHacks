@@ -24,8 +24,37 @@ function baseUrl() {
   return process.env.OPENAI_BASE_URL ?? 'https://api.openai.com/v1'
 }
 
+const GROQ_FALLBACK_MODEL = 'openai/gpt-oss-20b'
+
+function groqHost() {
+  return baseUrl().includes('api.groq.com')
+}
+
 function model() {
-  return process.env.UNSPRAY_MODEL ?? 'gpt-4o-mini'
+  const requested = process.env.UNSPRAY_MODEL
+  if (groqHost() && (!requested || requested === 'llama-3.3-70b-versatile')) return GROQ_FALLBACK_MODEL
+  return requested ?? 'gpt-4o-mini'
+}
+
+async function complete(k: string, body: Record<string, unknown>) {
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${k}`,
+    ...UA,
+  }
+  const post = (modelId: string) =>
+    fetch(`${baseUrl()}/chat/completions`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ ...body, model: modelId }),
+    })
+  let r = await post(model())
+  if (!r.ok && groqHost()) {
+    const err = (await r.json().catch(() => null)) as { error?: { code?: string } } | null
+    if (err?.error?.code === 'model_not_found') r = await post(GROQ_FALLBACK_MODEL)
+    else return { ok: false as const, status: r.status, json: err }
+  }
+  return { ok: r.ok, status: r.status, json: await r.json() }
 }
 
 export async function geoLookup(q: string): Promise<ApiResult> {
@@ -137,22 +166,17 @@ Each value is 1-3 sentences, plain language.`
       countyCropChemicals: chemicals,
       organicLabel: Boolean(parsed.organic),
     })
-    const r = await fetch(`${baseUrl()}/chat/completions`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${k}` },
-      body: JSON.stringify({
-        model: model(),
-        temperature: 0.2,
-        max_tokens: 420,
-        response_format: { type: 'json_object' },
-        messages: [
-          { role: 'system', content: `${briefSystem}\n\nKNOWLEDGE:\n${knowledgeText}` },
-          { role: 'user', content: payload.slice(0, 4000) },
-        ],
-      }),
+    const r = await complete(k, {
+      temperature: 0.2,
+      max_tokens: 420,
+      response_format: { type: 'json_object' },
+      messages: [
+        { role: 'system', content: `${briefSystem}\n\nKNOWLEDGE:\n${knowledgeText}` },
+        { role: 'user', content: payload.slice(0, 4000) },
+      ],
     })
     if (!r.ok) return { status: 502, body: { error: 'upstream' } }
-    const j = (await r.json()) as { choices?: { message?: { content?: string } }[] }
+    const j = r.json as { choices?: { message?: { content?: string } }[] }
     const text = j.choices?.[0]?.message?.content?.trim()
     if (!text) return { status: 502, body: { error: 'empty' } }
     const brief = JSON.parse(text) as { description?: string; practices?: string; alternatives?: string }
@@ -182,18 +206,13 @@ export async function chatReply(parsed: { messages?: Msg[] }): Promise<ApiResult
       .slice(-8)
       .map((m) => ({ role: m.role, content: m.content.slice(0, 1200) }))
     if (messages.length === 0) return { status: 400, body: { error: 'no-messages' } }
-    const r = await fetch(`${baseUrl()}/chat/completions`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${k}` },
-      body: JSON.stringify({
-        model: model(),
-        temperature: 0.3,
-        max_tokens: 400,
-        messages: [{ role: 'system', content: `${SYSTEM}\n\nKNOWLEDGE:\n${knowledgeText}` }, ...messages],
-      }),
+    const r = await complete(k, {
+      temperature: 0.3,
+      max_tokens: 400,
+      messages: [{ role: 'system', content: `${SYSTEM}\n\nKNOWLEDGE:\n${knowledgeText}` }, ...messages],
     })
     if (!r.ok) return { status: 502, body: { error: 'upstream' } }
-    const j = (await r.json()) as { choices?: { message?: { content?: string } }[] }
+    const j = r.json as { choices?: { message?: { content?: string } }[] }
     const reply = j.choices?.[0]?.message?.content?.trim()
     if (!reply) return { status: 502, body: { error: 'empty' } }
     return { status: 200, body: { reply } }
