@@ -43,6 +43,12 @@ function photo(p: OffProduct) {
   return p.image_front_url || p.image_url || p.image_front_small_url
 }
 
+function dbg(hypothesisId: string, location: string, message: string, data: Record<string, unknown>) {
+  // #region agent log
+  fetch('http://127.0.0.1:7932/ingest/4238acb4-ba8e-4c4c-857a-52471d1bd69a',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'9d36b3'},body:JSON.stringify({sessionId:'9d36b3',runId:'post-fix',hypothesisId,location,message,data,timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
+}
+
 export function ProductPage() {
   const [query, setQuery] = useState('')
   const [zip, setZip] = useState('')
@@ -108,6 +114,14 @@ export function ProductPage() {
           organic,
         }),
       })
+      // #region agent log
+      dbg('D', 'ProductPage.tsx:loadBrief', 'product-brief response', {
+        ok: res.ok,
+        status: res.status,
+        contentType: res.headers.get('content-type'),
+        host: location.host,
+      })
+      // #endregion
       if (!res.ok) return
       const body = (await res.json()) as Brief
       setBrief({
@@ -164,6 +178,17 @@ export function ProductPage() {
       const res = await fetch(
         barcode ? `/api/product?barcode=${barcode}` : `/api/product?q=${encodeURIComponent(text)}`,
       )
+      // #region agent log
+      dbg('A', 'ProductPage.tsx:lookup', 'product lookup response', {
+        ok: res.ok,
+        status: res.status,
+        contentType: res.headers.get('content-type'),
+        hasBarcode: Boolean(barcode),
+        barcodeLen: barcode?.length ?? 0,
+        host: location.host,
+        path: barcode ? '/api/product?barcode' : '/api/product?q',
+      })
+      // #endregion
       if (!res.ok) {
         if (!barcode) {
           setHit({
@@ -198,7 +223,14 @@ export function ProductPage() {
         else if (products.length === 1) await choose(products[0])
         else setChoices(products)
       }
-    } catch {
+    } catch (err) {
+      // #region agent log
+      dbg('A', 'ProductPage.tsx:lookup', 'product lookup threw', {
+        name: err instanceof Error ? err.name : 'unknown',
+        message: err instanceof Error ? err.message.slice(0, 120) : String(err).slice(0, 120),
+        host: location.host,
+      })
+      // #endregion
       setError('Product lookup needs the dev server running (`npm run dev`).')
     }
     setBusy(false)
@@ -216,7 +248,23 @@ export function ProductPage() {
       new (opts: { formats: string[] }): { detect: (src: HTMLVideoElement) => Promise<{ rawValue: string }[]> }
     }
     const Detector = (window as unknown as { BarcodeDetector?: DetectorAPI }).BarcodeDetector
+    // #region agent log
+    dbg('B', 'ProductPage.tsx:startScan', 'scan capabilities', {
+      host: location.host,
+      protocol: location.protocol,
+      isSecureContext: window.isSecureContext,
+      hasDetector: Boolean(Detector),
+      hasGum: Boolean(navigator.mediaDevices?.getUserMedia),
+    })
+    // #endregion
     if (!Detector || !navigator.mediaDevices?.getUserMedia) {
+      // #region agent log
+      dbg('B', 'ProductPage.tsx:startScan', 'missing detector or camera API', {
+        hasDetector: Boolean(Detector),
+        hasGum: Boolean(navigator.mediaDevices?.getUserMedia),
+        host: location.host,
+      })
+      // #endregion
       setScanNote('This browser can’t scan codes. Type the number under the barcode, or the text in the QR.')
       return
     }
@@ -235,6 +283,13 @@ export function ProductPage() {
       video.srcObject = stream
       video.muted = true
       await video.play()
+      // #region agent log
+      dbg('C', 'ProductPage.tsx:startScan', 'camera started', {
+        host: location.host,
+        trackCount: stream.getVideoTracks().length,
+        readyState: video.readyState,
+      })
+      // #endregion
       if (video.readyState < 2) {
         await new Promise<void>((resolve) => {
           video.onloadeddata = () => resolve()
@@ -273,7 +328,15 @@ export function ProductPage() {
         window.setTimeout(loop, 280)
       }
       void loop()
-    } catch {
+    } catch (err) {
+      // #region agent log
+      dbg('C', 'ProductPage.tsx:startScan', 'camera start failed', {
+        name: err instanceof Error ? err.name : 'unknown',
+        message: err instanceof Error ? err.message.slice(0, 120) : String(err).slice(0, 120),
+        host: location.host,
+        isSecureContext: window.isSecureContext,
+      })
+      // #endregion
       setScanning(false)
       setScanNote('Camera permission was blocked. Type the barcode or QR text instead.')
     }
