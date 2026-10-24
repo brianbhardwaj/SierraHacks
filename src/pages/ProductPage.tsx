@@ -5,6 +5,7 @@ import { Reveal } from '../components/Motion'
 import data from '../data/counties.json'
 import { flagged13D, ID } from '../data/facts'
 import { matchFood, type FoodMatch } from '../lib/foodMatch'
+import { isCatalogBody, offByBarcode, offByName } from '../lib/offCatalog'
 import { parseScanned } from '../lib/scanCode'
 
 type OffProduct = {
@@ -141,10 +142,22 @@ export function ProductPage() {
     setHit({ product, organic, match, fromCatalog: true })
     setChoices([])
     const altTerm = match.kind === 'crop' ? `organic ${match.label}` : `organic ${product.product_name ?? ''}`.trim()
-    const altRes = await fetch(`/api/product?q=${encodeURIComponent(altTerm)}`)
-    if (altRes.ok) {
-      const body = (await altRes.json()) as { products?: OffProduct[] }
-      setAlts((body.products ?? []).filter((p) => p.code !== product.code).slice(0, 4))
+    let altBody: { products?: OffProduct[] } | null = null
+    try {
+      const altRes = await fetch(`/api/product?q=${encodeURIComponent(altTerm)}`)
+      if (altRes.ok) altBody = (await altRes.json()) as { products?: OffProduct[] }
+    } catch {
+      altBody = null
+    }
+    if (!isCatalogBody(altBody)) {
+      try {
+        altBody = (await offByName(altTerm)) as { products?: OffProduct[] }
+      } catch {
+        altBody = null
+      }
+    }
+    if (altBody?.products) {
+      setAlts(altBody.products.filter((p) => p.code !== product.code).slice(0, 4))
     }
     let chemicals: string[] = []
     if (/^\d{5}$/.test(zip.trim())) {
@@ -175,36 +188,52 @@ export function ProductPage() {
     setStores([])
     setCountyName('')
     try {
-      const res = await fetch(
-        barcode ? `/api/product?barcode=${barcode}` : `/api/product?q=${encodeURIComponent(text)}`,
-      )
-      // #region agent log
-      dbg('A', 'ProductPage.tsx:lookup', 'product lookup response', {
-        ok: res.ok,
-        status: res.status,
-        contentType: res.headers.get('content-type'),
-        hasBarcode: Boolean(barcode),
-        barcodeLen: barcode?.length ?? 0,
-        host: location.host,
-        path: barcode ? '/api/product?barcode' : '/api/product?q',
-      })
-      // #endregion
-      if (!res.ok) {
-        if (!barcode) {
-          setHit({
-            product: { product_name: text },
-            organic: /organic/i.test(text),
-            match: matchFood(text),
-            fromCatalog: false,
-          })
-          if (/^\d{5}$/.test(zip.trim())) await loadPlace(zip.trim())
-        } else {
-          setError('No answer for that code. The product catalog may be busy. Try the name on the package.')
+      let body: { status?: number; product?: OffProduct; products?: OffProduct[] } | null = null
+      let source = 'api'
+      try {
+        const res = await fetch(
+          barcode ? `/api/product?barcode=${barcode}` : `/api/product?q=${encodeURIComponent(text)}`,
+        )
+        // #region agent log
+        dbg('A', 'ProductPage.tsx:lookup', 'product lookup response', {
+          ok: res.ok,
+          status: res.status,
+          contentType: res.headers.get('content-type'),
+          hasBarcode: Boolean(barcode),
+          barcodeLen: barcode?.length ?? 0,
+          host: location.host,
+          path: barcode ? '/api/product?barcode' : '/api/product?q',
+        })
+        // #endregion
+        if (res.ok) {
+          const parsed: unknown = await res.json()
+          if (isCatalogBody(parsed)) body = parsed as { status?: number; product?: OffProduct; products?: OffProduct[] }
         }
-        setBusy(false)
-        return
+      } catch (err) {
+        // #region agent log
+        dbg('A', 'ProductPage.tsx:lookup', 'product lookup threw', {
+          name: err instanceof Error ? err.name : 'unknown',
+          message: err instanceof Error ? err.message.slice(0, 120) : String(err).slice(0, 120),
+          host: location.host,
+        })
+        // #endregion
       }
-      const body = (await res.json()) as { status?: number; product?: OffProduct; products?: OffProduct[] }
+      if (!body) {
+        source = 'openfoodfacts'
+        body = barcode
+          ? ((await offByBarcode(barcode)) as { status?: number; product?: OffProduct; products?: OffProduct[] })
+          : ((await offByName(text)) as { status?: number; product?: OffProduct; products?: OffProduct[] })
+        // #region agent log
+        dbg('A', 'ProductPage.tsx:lookup', 'open food facts fallback', {
+          hasBarcode: Boolean(barcode),
+          host: location.host,
+          productCount: Array.isArray(body.products) ? body.products.length : body.product ? 1 : 0,
+        })
+        // #endregion
+      }
+      // #region agent log
+      dbg('A', 'ProductPage.tsx:lookup', 'catalog source', { source, host: location.host })
+      // #endregion
       if (barcode) {
         const product = body.status === 1 ? asProduct(body.product) : null
         if (!product) setError('No public record for that code. Try the name on the package.')
@@ -231,7 +260,7 @@ export function ProductPage() {
         host: location.host,
       })
       // #endregion
-      setError('Product lookup needs the dev server running (`npm run dev`).')
+      setError('The public product catalog did not answer. Try again, or type the name on the package.')
     }
     setBusy(false)
   }
