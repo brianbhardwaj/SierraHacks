@@ -3,24 +3,20 @@ import { Cite } from '../components/Cite'
 import { ID } from '../data/facts'
 
 const cards = [
-  { to: '/product', name: 'Check food', body: 'Scan a barcode or type a name' },
-  { to: '/near', name: 'Your zip', body: 'Markets mapped around your zip' },
-  { to: '/data', name: 'Data', body: 'County charts and city totals' },
-  { to: '/ecosystem', name: 'Problem', body: 'Wildlife evidence, with sources' },
-  { to: '/email', name: 'Email', body: 'Ask a store how food is grown' },
-  { to: '/report', name: 'Report', body: 'A complaint script for 1-87PestLine' },
-  { to: '/plant', name: 'Plant', body: 'Native seed and milkweed to buy' },
-  { to: '/ask', name: 'Ask', body: 'Tell Sprout your situation' },
+  { to: '/product', name: 'Scan for pesticides', body: 'Barcode or name, then crop records' },
+  { to: '/near', name: 'Clean choices around you', body: 'Markets mapped around your zip' },
+  { to: '/data', name: 'Where the pounds land', body: 'County charts and city totals' },
+  { to: '/ecosystem', name: 'What wildlife is showing', body: 'Evidence, with sources' },
+  { to: '/email', name: 'Ask who sells your food', body: 'A polite note to a store or farm' },
+  { to: '/report', name: 'Say something happened', body: 'A script for 1-87PestLine' },
+  { to: '/plant', name: 'Put habitat back', body: 'Native seed and milkweed to buy' },
+  { to: '/ask', name: 'Talk it through', body: 'Tell Sprout your situation' },
 ]
 
 export function Home() {
   return (
     <div className="home-page">
       <style>{`
-        .shell:has(.home-page) .top-nav a { display: none; }
-        .shell:has(.home-page) .top-nav a[href="#/"],
-        .shell:has(.home-page) .top-nav a[href="#/product"],
-        .shell:has(.home-page) .top-nav a[href="#/near"] { display: inline-flex; }
         .home-page { padding-bottom: 1rem; }
         .home-hero { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 2.8rem; align-items: center; padding: 1.6rem 0 2.4rem; }
         .home-hero h1 { font-size: clamp(4.6rem, 12vw, 8.6rem); letter-spacing: -0.06em; line-height: 0.82; margin: 0 0 0.35rem; color: #0c2418; }
@@ -35,11 +31,11 @@ export function Home() {
         .home-glass p { margin: 0.25rem 0 0; color: var(--mute); font-size: 0.9rem; }
         .home-glass span { margin-top: 0.7rem; font-family: var(--display); font-weight: 600; font-size: 0.82rem; color: var(--green-deep); }
         .home-glass a:first-child p { margin-top: 0.15rem; }
-        .home-topic { display: grid; grid-template-columns: minmax(200px, 0.7fr) 1.2fr; gap: 1.4rem; align-items: center; margin: 0 0 1.8rem; }
+        .home-topic { display: grid; grid-template-columns: minmax(200px, 0.7fr) 1.2fr; gap: 1.6rem; align-items: center; margin: 0.4rem 0 2.1rem; padding: 0.2rem 0 0; }
         .home-topic.reverse { grid-template-columns: 1.2fr minmax(200px, 0.7fr); }
-        .home-topic img { width: 100%; height: 210px; object-fit: cover; border-radius: 18px; display: block; }
-        .home-topic h2 { margin-top: 0; }
-        .home-topic p { color: var(--mute); }
+        .home-topic img { width: 100%; height: 220px; object-fit: cover; border-radius: 22px; display: block; }
+        .home-topic h2 { margin: 0.15rem 0 0.7rem; letter-spacing: -0.03em; color: #10281c; }
+        .home-topic p { color: var(--mute); max-width: 38rem; }
         @media (max-width: 860px) {
           .home-hero, .home-glass, .home-glass a:first-child { grid-template-columns: 1fr; }
           .home-glass a:first-child { flex-direction: column; align-items: flex-start; }
@@ -79,12 +75,14 @@ export function Home() {
       <article className="home-topic">
         <img src="/img/side-monarch.jpg" alt="A monarch butterfly with its wings open" />
         <div>
-          <h2>Why we are doing this</h2>
+          <p className="kicker">Wildlife</p>
+          <h2>The issue</h2>
           <p>
             Western monarchs fell from millions in the 1980s to 12,260 counted in 2025
             <Cite n={[ID.monarch2026]} />. Central Valley milkweed, the only food monarch caterpillars
-            eat, carried 64 different pesticides in one study<Cite n={[ID.monarch2025]} />. Unspray
-            exists so those numbers, and the tools to act on them, sit in one place.
+            eat, carried 64 different pesticides in one study<Cite n={[ID.monarch2025]} />. The counts
+            are public. The chemicals on the leaf are public. They still sit far from most grocery
+            aisles.
           </p>
           <Link className="text-link" to="/ecosystem">Read the evidence →</Link>
         </div>
@@ -92,12 +90,13 @@ export function Home() {
 
       <article className="home-topic reverse">
         <div>
-          <h2>What spraying does here</h2>
+          <p className="kicker">Central Valley</p>
+          <h2>How the Valley feels it</h2>
           <p>
             Almond bloom needs about two million honey bee colonies
             <Cite n={[ID.almondLabel]} />. Sediment in Central Valley farm waterways has been toxic
-            at 42% of sampled sites<Cite n={[ID.sediment]} />. Pesticides are one pressure, with
-            habitat loss and climate. The Data page shows where use is concentrated.
+            at 42% of sampled sites<Cite n={[ID.sediment]} />. Spray is one pressure, with habitat
+            loss and climate. County records show where pounds pile up, not which farm filled a crate.
           </p>
           <Link className="text-link" to="/data">Open the county charts →</Link>
         </div>
@@ -107,7 +106,8 @@ export function Home() {
       <article className="home-topic">
         <img src="/img/side-milkweed.jpg" alt="Narrowleaf milkweed flowers" />
         <div>
-          <h2>What you can do today</h2>
+          <p className="kicker">What to do</p>
+          <h2>From here</h2>
           <p>
             Check a product, look up shops near your zip, email a store, or plant native milkweed.
             None of those tools invents a farm-to-shelf link. When spraying causes harm, the Report
