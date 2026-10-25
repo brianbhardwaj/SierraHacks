@@ -69,14 +69,14 @@ export function Chat() {
   return (
     <div className="soft-card chat">
       <div className="chat-top">
-        <span className="avatar" aria-hidden="true">🌱</span>
+        <span className="avatar" aria-hidden="true">S</span>
         <div>
           <strong>Sprout, your action guide</strong>
           <small>
             {ai === null
               ? 'Connecting…'
               : ai
-                ? 'Sprout AI is on: answers use only this site’s sourced facts'
+                ? 'AI mode: answers use only this site’s sourced facts'
                 : 'Built-in guide mode: no AI key set, answers use this site’s sourced facts'}
           </small>
         </div>

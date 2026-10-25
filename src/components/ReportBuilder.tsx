@@ -2,12 +2,12 @@ import { useMemo, useState } from 'react'
 
 type Kind = 'drift' | 'bees' | 'water' | 'school' | 'work'
 
-const kinds: Record<Kind, { label: string; icon: string }> = {
-  drift: { label: 'Spray drift near my home', icon: '🏡' },
-  bees: { label: 'Bees or wildlife harmed', icon: '🐝' },
-  water: { label: 'Fish or water affected', icon: '💧' },
-  school: { label: 'Near a school or child care', icon: '🏫' },
-  work: { label: 'Exposure at work', icon: '🧑‍🌾' },
+const kinds: Record<Kind, { label: string; mark: string }> = {
+  drift: { label: 'Spray drift near my home', mark: '*' },
+  bees: { label: 'Bees or wildlife harmed', mark: '+' },
+  water: { label: 'Fish or water affected', mark: '#' },
+  school: { label: 'Near a school or child care', mark: '/' },
+  work: { label: 'Exposure at work', mark: '&' },
 }
 
 const equipmentOpts = ['Tractor / ground rig', 'Backpack or hand sprayer', 'Airplane or helicopter', 'Not sure']
@@ -63,7 +63,7 @@ export function ReportBuilder() {
         <div className="chips">
           {(Object.keys(kinds) as Kind[]).map((k) => (
             <button key={k} type="button" className={kind === k ? 'chip on' : 'chip'} aria-pressed={kind === k} onClick={() => setKind(k)}>
-              {kinds[k].icon} {kinds[k].label}
+              {kinds[k].mark} {kinds[k].label}
             </button>
           ))}
         </div>
@@ -102,8 +102,8 @@ export function ReportBuilder() {
         </div>
         <pre className="letter-body" aria-live="polite">{script}</pre>
         <div className="hero-cta">
-          <a className="btn" href="tel:18773785463">📞 Call 1-87PestLine</a>
-          <button type="button" className="btn ghost" onClick={copy}>{copied ? '✓ Copied!' : 'Copy script'}</button>
+          <a className="btn" href="tel:18773785463">Call 1-87PestLine</a>
+          <button type="button" className="btn ghost" onClick={copy}>{copied ? '* Copied' : 'Copy script'}</button>
         </div>
         <p className="note">
           This tool does not file anything for you. Read the script on the phone, paste it into the CASPIR

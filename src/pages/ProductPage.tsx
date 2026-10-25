@@ -1,21 +1,30 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent, type PointerEvent as ReactPointerEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { Cite } from '../components/Cite'
 import { Reveal } from '../components/Motion'
 import data from '../data/counties.json'
 import { flagged13D, ID } from '../data/facts'
 import { matchFood, type FoodMatch } from '../lib/foodMatch'
-import { interpretScan } from '../lib/scan'
+import { isCatalogBody, offByBarcode, offByName } from '../lib/offCatalog'
+import { parseScanned } from '../lib/scanCode'
 
 type OffProduct = {
   code?: string
   product_name?: string
+  generic_name?: string
   brands?: string
+  quantity?: string
   image_front_small_url?: string
+  image_front_url?: string
+  image_url?: string
   categories?: string
+  labels?: string
   labels_tags?: string[]
   ingredients_text?: string
+  packaging?: string
 }
+
+type Brief = { description: string; practices: string; alternatives: string }
 
 type Store = { name: string; kind: string }
 
@@ -26,14 +35,19 @@ type Hit = {
   fromCatalog: boolean
 }
 
-type SproutProduct = {
-  description: string
-  healthier: { name: string; why: string; query: string }[]
+function asProduct(raw: OffProduct | undefined): OffProduct | null {
+  if (!raw?.product_name && !raw?.generic_name && !raw?.code) return null
+  return raw
 }
 
-function asProduct(raw: OffProduct | undefined): OffProduct | null {
-  if (!raw?.product_name && !raw?.code) return null
-  return raw
+function photo(p: OffProduct) {
+  return p.image_front_url || p.image_url || p.image_front_small_url
+}
+
+function dbg(hypothesisId: string, location: string, message: string, data: Record<string, unknown>) {
+  // #region agent log
+  fetch('http://127.0.0.1:7932/ingest/4238acb4-ba8e-4c4c-857a-52471d1bd69a',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'9d36b3'},body:JSON.stringify({sessionId:'9d36b3',runId:'post-fix',hypothesisId,location,message,data,timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
 }
 
 export function ProductPage() {
@@ -46,13 +60,15 @@ export function ProductPage() {
   const [countyName, setCountyName] = useState('')
   const [stores, setStores] = useState<Store[]>([])
   const [alts, setAlts] = useState<OffProduct[]>([])
-  const [insight, setInsight] = useState<SproutProduct | null>(null)
-  const [insightBusy, setInsightBusy] = useState(false)
   const [scanNote, setScanNote] = useState('')
   const [scanning, setScanning] = useState(false)
-  const lastQr = useRef('')
+  const [beam, setBeam] = useState(22)
+  const [holding, setHolding] = useState(false)
+  const [brief, setBrief] = useState<Brief | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const scanRef = useRef<HTMLDivElement>(null)
   const stopRef = useRef<(() => void) | null>(null)
+  const dragRef = useRef({ active: false, moved: false, startX: 0, startY: 0 })
 
   useEffect(() => () => stopRef.current?.(), [])
 
@@ -63,119 +79,188 @@ export function ProductPage() {
   }
 
   async function loadPlace(zipCode: string) {
-    if (!/^\d{5}$/.test(zipCode)) return
+    if (!/^\d{5}$/.test(zipCode)) return ''
     const geoRes = await fetch(`/api/geo?q=${encodeURIComponent(zipCode)}`)
-    if (!geoRes.ok) return
+    if (!geoRes.ok) return ''
     const place = (await geoRes.json()) as { lat: number; lon: number; county: string; state: string }
-    if (place.state && place.state !== 'California') return
+    if (place.state && place.state !== 'California') return ''
     setCountyName(place.county)
     const storeRes = await fetch(`/api/stores?q=${encodeURIComponent(`${place.county || zipCode}, California`)}`)
     if (storeRes.ok) {
       const body = (await storeRes.json()) as { stores?: Store[] }
       setStores(body.stores ?? [])
     }
+    return place.county
   }
 
-  async function loadInsight(product: OffProduct, match: FoodMatch) {
-    setInsight(null)
-    setInsightBusy(true)
+  async function loadBrief(product: OffProduct, match: FoodMatch, organic: boolean, chemicals: string[]) {
     try {
-      const res = await fetch('/api/sprout', {
+      const res = await fetch('/api/product-brief', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          kind: 'product',
           product: {
             name: product.product_name,
+            generic: product.generic_name,
             brands: product.brands,
-            code: product.code,
+            quantity: product.quantity,
             categories: product.categories,
+            labels: product.labels,
             ingredients: product.ingredients_text,
-            qr: lastQr.current,
+            packaging: product.packaging,
+            code: product.code,
           },
-          match,
+          crop: match.kind === 'crop' ? match.label : match.kind,
+          chemicals,
+          organic,
         }),
       })
-      if (res.ok) setInsight((await res.json()) as SproutProduct)
+      // #region agent log
+      dbg('D', 'ProductPage.tsx:loadBrief', 'product-brief response', {
+        ok: res.ok,
+        status: res.status,
+        contentType: res.headers.get('content-type'),
+        host: location.host,
+      })
+      // #endregion
+      if (!res.ok) return
+      const body = (await res.json()) as Brief
+      setBrief({
+        description: body.description ?? '',
+        practices: body.practices ?? '',
+        alternatives: body.alternatives ?? '',
+      })
     } catch {
-      /* catalog result still stands */
+      /* key unset or offline: the page still shows catalog fields */
     }
-    setInsightBusy(false)
   }
 
   async function choose(product: OffProduct) {
-    const blob = [product.product_name, product.brands, product.categories, product.ingredients_text].filter(Boolean).join(' ')
+    const blob = [product.product_name, product.generic_name, product.brands, product.categories, product.ingredients_text].filter(Boolean).join(' ')
     const match = matchFood(blob)
-    const organic = (product.labels_tags ?? []).some((t) => t.includes('organic'))
+    const organic = (product.labels_tags ?? []).some((t) => t.includes('organic')) || /organic/i.test(product.labels ?? '')
     setHit({ product, organic, match, fromCatalog: true })
     setChoices([])
-    void loadInsight(product, match)
     const altTerm = match.kind === 'crop' ? `organic ${match.label}` : `organic ${product.product_name ?? ''}`.trim()
-    const altRes = await fetch(`/api/product?q=${encodeURIComponent(altTerm)}`)
-    if (altRes.ok) {
-      const body = (await altRes.json()) as { products?: OffProduct[] }
-      setAlts((body.products ?? []).filter((p) => p.code !== product.code).slice(0, 4))
+    let altBody: { products?: OffProduct[] } | null = null
+    try {
+      const altRes = await fetch(`/api/product?q=${encodeURIComponent(altTerm)}`)
+      if (altRes.ok) altBody = (await altRes.json()) as { products?: OffProduct[] }
+    } catch {
+      altBody = null
     }
-    if (/^\d{5}$/.test(zip.trim())) await loadPlace(zip.trim())
+    if (!isCatalogBody(altBody)) {
+      try {
+        altBody = (await offByName(altTerm)) as { products?: OffProduct[] }
+      } catch {
+        altBody = null
+      }
+    }
+    if (altBody?.products) {
+      setAlts(altBody.products.filter((p) => p.code !== product.code).slice(0, 4))
+    }
+    let chemicals: string[] = []
+    if (/^\d{5}$/.test(zip.trim())) {
+      const county = await loadPlace(zip.trim())
+      const row = data.counties.find((c) => c.name.toLowerCase() === county.toLowerCase())
+      const cropRow =
+        match.kind === 'crop'
+          ? row?.crops.find((c) => c.name.toLowerCase().includes(match.needle))
+          : undefined
+      chemicals = cropRow?.chems.map((c) => `${c.name} (${c.lbs.toLocaleString()} lb in ${row?.name} County, 2023)`) ?? []
+    }
+    await loadBrief(product, match, organic, chemicals)
   }
 
-  async function lookup(raw: string, scanned = false) {
-    const text = raw.trim()
-    if (text.length < 2) {
-      setError('Type a product name, barcode, or scan a QR code.')
+  async function lookup(raw: string) {
+    const scanned = parseScanned(raw)
+    const barcode = scanned.barcode
+    const text = (scanned.query ?? raw).trim()
+    if (!barcode && text.length < 2) {
+      setError('Type a product name or a barcode, or scan a QR / ID code.')
       return
     }
-    const scan = scanned || /https?:\/\//i.test(text) ? interpretScan(text) : null
-    lastQr.current = scan?.qr ?? ''
-    const lookupText = scan?.barcode || scan?.query || text
     setBusy(true)
     setError('')
     setHit(null)
+    setBrief(null)
     setAlts([])
-    setInsight(null)
     setStores([])
     setCountyName('')
-    const digits = lookupText.replace(/\D/g, '')
-    const isBarcode = Boolean(scan?.barcode) || (digits.length >= 8 && digits.length <= 14 && digits === lookupText.replace(/\s/g, ''))
     try {
-      const res = await fetch(isBarcode ? `/api/product?barcode=${digits}` : `/api/product?q=${encodeURIComponent(lookupText)}`)
-      if (!res.ok) {
-        const fallback: OffProduct = { product_name: lookupText }
-        const match = matchFood(lookupText)
-        setHit({ product: fallback, organic: /organic/i.test(lookupText), match, fromCatalog: false })
-        void loadInsight(fallback, match)
-        if (/^\d{5}$/.test(zip.trim())) await loadPlace(zip.trim())
-        setBusy(false)
-        return
+      let body: { status?: number; product?: OffProduct; products?: OffProduct[] } | null = null
+      let source = 'api'
+      try {
+        const res = await fetch(
+          barcode ? `/api/product?barcode=${barcode}` : `/api/product?q=${encodeURIComponent(text)}`,
+        )
+        // #region agent log
+        dbg('A', 'ProductPage.tsx:lookup', 'product lookup response', {
+          ok: res.ok,
+          status: res.status,
+          contentType: res.headers.get('content-type'),
+          hasBarcode: Boolean(barcode),
+          barcodeLen: barcode?.length ?? 0,
+          host: location.host,
+          path: barcode ? '/api/product?barcode' : '/api/product?q',
+        })
+        // #endregion
+        if (res.ok) {
+          const parsed: unknown = await res.json()
+          if (isCatalogBody(parsed)) body = parsed as { status?: number; product?: OffProduct; products?: OffProduct[] }
+        }
+      } catch (err) {
+        // #region agent log
+        dbg('A', 'ProductPage.tsx:lookup', 'product lookup threw', {
+          name: err instanceof Error ? err.name : 'unknown',
+          message: err instanceof Error ? err.message.slice(0, 120) : String(err).slice(0, 120),
+          host: location.host,
+        })
+        // #endregion
       }
-      const body = (await res.json()) as { status?: number; product?: OffProduct; products?: OffProduct[] }
-      if (isBarcode) {
+      if (!body) {
+        source = 'openfoodfacts'
+        body = barcode
+          ? ((await offByBarcode(barcode)) as { status?: number; product?: OffProduct; products?: OffProduct[] })
+          : ((await offByName(text)) as { status?: number; product?: OffProduct; products?: OffProduct[] })
+        // #region agent log
+        dbg('A', 'ProductPage.tsx:lookup', 'open food facts fallback', {
+          hasBarcode: Boolean(barcode),
+          host: location.host,
+          productCount: Array.isArray(body.products) ? body.products.length : body.product ? 1 : 0,
+        })
+        // #endregion
+      }
+      // #region agent log
+      dbg('A', 'ProductPage.tsx:lookup', 'catalog source', { source, host: location.host })
+      // #endregion
+      if (barcode) {
         const product = body.status === 1 ? asProduct(body.product) : null
-        if (!product) {
-          const fallback: OffProduct = { product_name: lookupText, code: digits }
-          const match = matchFood(lookupText)
-          setHit({ product: fallback, organic: false, match, fromCatalog: false })
-          void loadInsight(fallback, match)
-        } else await choose(product)
+        if (!product) setError('No public record for that code. Try the name on the package.')
+        else await choose(product)
       } else {
         const products = (body.products ?? []).map(asProduct).filter((p): p is OffProduct => Boolean(p))
         if (products.length === 0) {
-          const fallback: OffProduct = { product_name: lookupText }
-          const match = matchFood(lookupText)
           setHit({
-            product: fallback,
-            organic: /organic/i.test(lookupText),
-            match,
+            product: { product_name: text },
+            organic: /organic/i.test(text),
+            match: matchFood(text),
             fromCatalog: false,
           })
-          void loadInsight(fallback, match)
           if (/^\d{5}$/.test(zip.trim())) await loadPlace(zip.trim())
         }
         else if (products.length === 1) await choose(products[0])
         else setChoices(products)
       }
-    } catch {
-      setError('Product lookup needs the dev server running (`npm run dev`).')
+    } catch (err) {
+      // #region agent log
+      dbg('A', 'ProductPage.tsx:lookup', 'product lookup threw', {
+        name: err instanceof Error ? err.name : 'unknown',
+        message: err instanceof Error ? err.message.slice(0, 120) : String(err).slice(0, 120),
+        host: location.host,
+      })
+      // #endregion
+      setError('The public product catalog did not answer. Try again, or type the name on the package.')
     }
     setBusy(false)
   }
@@ -187,20 +272,67 @@ export function ProductPage() {
 
   async function startScan() {
     stopScan()
-    const Detector = (window as unknown as { BarcodeDetector?: new (opts: { formats: string[] }) => { detect: (src: HTMLVideoElement) => Promise<{ rawValue: string }[]> } }).BarcodeDetector
+    type DetectorAPI = {
+      getSupportedFormats?: () => Promise<string[]>
+      new (opts: { formats: string[] }): { detect: (src: HTMLVideoElement) => Promise<{ rawValue: string }[]> }
+    }
+    const Detector = (window as unknown as { BarcodeDetector?: DetectorAPI }).BarcodeDetector
+    // #region agent log
+    dbg('B', 'ProductPage.tsx:startScan', 'scan capabilities', {
+      host: location.host,
+      protocol: location.protocol,
+      isSecureContext: window.isSecureContext,
+      hasDetector: Boolean(Detector),
+      hasGum: Boolean(navigator.mediaDevices?.getUserMedia),
+    })
+    // #endregion
     if (!Detector || !navigator.mediaDevices?.getUserMedia) {
-      setScanNote('This browser can’t scan barcodes or QR codes. Type the number under the barcode instead.')
+      // #region agent log
+      dbg('B', 'ProductPage.tsx:startScan', 'missing detector or camera API', {
+        hasDetector: Boolean(Detector),
+        hasGum: Boolean(navigator.mediaDevices?.getUserMedia),
+        host: location.host,
+      })
+      // #endregion
+      setScanNote('This browser can’t scan codes. Type the number under the barcode, or the text in the QR.')
       return
     }
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-      const video = videoRef.current
-      if (!video) return
-      video.srcObject = stream
-      await video.play()
       setScanning(true)
-      setScanNote('Point the camera at a food barcode or QR code.')
-      const detector = new Detector({ formats: ['qr_code', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128'] })
+      setScanNote('Point the camera at a barcode or a product QR.')
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+      })
+      const video = videoRef.current
+      if (!video) {
+        stream.getTracks().forEach((t) => t.stop())
+        setScanning(false)
+        return
+      }
+      video.srcObject = stream
+      video.muted = true
+      await video.play()
+      // #region agent log
+      dbg('C', 'ProductPage.tsx:startScan', 'camera started', {
+        host: location.host,
+        trackCount: stream.getVideoTracks().length,
+        readyState: video.readyState,
+      })
+      // #endregion
+      if (video.readyState < 2) {
+        await new Promise<void>((resolve) => {
+          video.onloadeddata = () => resolve()
+        })
+      }
+      const wanted = ['qr_code', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'itf', 'data_matrix']
+      let formats = wanted
+      try {
+        const supported = await Detector.getSupportedFormats?.()
+        if (supported?.length) formats = wanted.filter((f) => supported.includes(f))
+      } catch {
+        formats = ['qr_code', 'ean_13', 'ean_8', 'upc_a', 'upc_e']
+      }
+      const detector = new Detector({ formats: formats.length ? formats : wanted })
       let alive = true
       stopRef.current = () => {
         alive = false
@@ -213,20 +345,29 @@ export function ProductPage() {
           const codes = await detector.detect(video)
           const value = codes[0]?.rawValue
           if (value) {
-            const parsed = interpretScan(value)
-            setQuery(parsed.barcode || parsed.query || value)
+            setQuery(value)
+            setScanNote('Code read. Looking up the package…')
             stopScan()
-            void lookup(value, true)
+            void lookup(value)
             return
           }
         } catch {
           /* keep trying */
         }
-        window.setTimeout(loop, 350)
+        window.setTimeout(loop, 280)
       }
       void loop()
-    } catch {
-      setScanNote('Camera permission was blocked. Type the barcode instead.')
+    } catch (err) {
+      // #region agent log
+      dbg('C', 'ProductPage.tsx:startScan', 'camera start failed', {
+        name: err instanceof Error ? err.name : 'unknown',
+        message: err instanceof Error ? err.message.slice(0, 120) : String(err).slice(0, 120),
+        host: location.host,
+        isSecureContext: window.isSecureContext,
+      })
+      // #endregion
+      setScanning(false)
+      setScanNote('Camera permission was blocked. Type the barcode or QR text instead.')
     }
   }
 
@@ -241,36 +382,90 @@ export function ProductPage() {
         <p className="eyebrow">Check a product</p>
         <h1>Scan it, or type the name</h1>
         <p className="sub">
-          A barcode or QR code identifies the package. Sprout looks it up online for a photo and
-          description, then suggests healthier swaps. California crop-spray records appear only when
-          the food maps to a crop we have data for<Cite n={[ID.dprTop5]} />.
+          A barcode identifies the package. It does not list pesticides. This page reads the public Open
+          Food Facts record, then shows California crop-spray records only when the food maps to a crop
+          we have data for<Cite n={[ID.dprTop5]} />.
         </p>
       </Reveal>
 
       <div className="product-layout">
         <Reveal className="soft-card builder">
           <form onSubmit={onSubmit}>
-            <label htmlFor="product">Product name, barcode, or QR text</label>
-            <input id="product" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Scan a QR, or try almonds / 012345678905" />
+            <label htmlFor="product">Product name or barcode</label>
+            <input id="product" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Whole Foods parmesan, or 012345678905" />
             <label htmlFor="pzip">Zip, for nearby stores <small>(optional)</small></label>
             <input id="pzip" inputMode="numeric" value={zip} onChange={(e) => setZip(e.target.value)} placeholder="95336" maxLength={5} />
             <div className="hero-cta">
               <button className="btn" type="submit" disabled={busy}>{busy ? 'Checking…' : 'Check product'}</button>
               <button className="btn ghost" type="button" onClick={() => (scanning ? stopScan() : void startScan())}>
-                {scanning ? 'Stop camera' : 'Scan barcode or QR'}
+                {scanning ? 'Stop camera' : 'Scan barcode'}
               </button>
             </div>
           </form>
+          <div
+            ref={scanRef}
+            className={`scan-stage${scanning ? ' live' : ''}${holding ? ' hold' : ''}`}
+            style={{ ['--beam' as string]: `${beam}%` }}
+            role="button"
+            tabIndex={0}
+            aria-label={scanning ? 'Live scanner. Drag the beam, or click to stop the camera.' : 'Scanner. Click to open the camera. Drag the beam to aim it.'}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                if (scanning) stopScan()
+                else void startScan()
+              }
+            }}
+            onPointerDown={(e: ReactPointerEvent<HTMLDivElement>) => {
+              if ((e.target as HTMLElement).closest('button')) return
+              dragRef.current = { active: true, moved: false, startX: e.clientX, startY: e.clientY }
+              setHolding(true)
+              e.currentTarget.setPointerCapture(e.pointerId)
+              const box = scanRef.current
+              if (!box) return
+              const r = box.getBoundingClientRect()
+              setBeam(Math.min(88, Math.max(10, ((e.clientY - r.top) / r.height) * 100)))
+            }}
+            onPointerMove={(e: ReactPointerEvent<HTMLDivElement>) => {
+              if (!dragRef.current.active) return
+              if (Math.abs(e.clientX - dragRef.current.startX) + Math.abs(e.clientY - dragRef.current.startY) > 6) {
+                dragRef.current.moved = true
+              }
+              const box = scanRef.current
+              if (!box) return
+              const r = box.getBoundingClientRect()
+              setBeam(Math.min(88, Math.max(10, ((e.clientY - r.top) / r.height) * 100)))
+            }}
+            onPointerUp={() => {
+              const wasDrag = dragRef.current.moved
+              dragRef.current.active = false
+              setHolding(false)
+              if (!wasDrag) {
+                if (scanning) stopScan()
+                else void startScan()
+              }
+            }}
+            onPointerCancel={() => {
+              dragRef.current.active = false
+              setHolding(false)
+            }}
+          >
+            <video ref={videoRef} className="scanner" muted playsInline autoPlay />
+            <div className="scan-frame" aria-hidden="true" />
+            <div className="scan-beam" aria-hidden="true" />
+            <p className="scan-hint">
+              {scanning ? 'Drag the beam to aim. Click to stop.' : 'Click to scan. Drag the beam to preview.'}
+            </p>
+          </div>
           {scanNote && <p className="note">{scanNote}</p>}
-          <video ref={videoRef} className={scanning ? 'scanner on' : 'scanner'} muted playsInline />
           {error && <p className="alert" role="alert">{error}</p>}
           {choices.length > 0 && (
             <ul className="choice-list">
               {choices.map((p) => (
                 <li key={p.code}>
                   <button type="button" onClick={() => void choose(p)}>
-                    {p.image_front_small_url && <img src={p.image_front_small_url} alt="" />}
-                    <span><strong>{p.product_name}</strong><small>{p.brands}</small></span>
+                    {photo(p) && <img src={photo(p)} alt="" />}
+                    <span><strong>{p.product_name || p.generic_name}</strong><small>{p.brands}</small></span>
                   </button>
                 </li>
               ))}
@@ -279,21 +474,29 @@ export function ProductPage() {
         </Reveal>
 
         <Reveal className="soft-card letter" delay={60}>
-          {!hit && <p>Results show up here. Scan a food QR, or try a cheese, a bag of almonds, or grapes.</p>}
+          {!hit && <p>Results show up here. Try a cheese, a bag of almonds, or grapes.</p>}
           {hit && (
             <>
               {!hit.fromCatalog && (
-                <p className="note">The public catalog didn’t return this exact package, so Sprout is working from the name or QR text plus California crop records. It is not a lab test of a specific brand.</p>
+                <p className="note">The product catalog didn’t return a package for that name, so this uses your words plus California crop records. It is not a test of a specific brand.</p>
               )}
               <div className="product-head">
-                {hit.product.image_front_small_url && <img src={hit.product.image_front_small_url} alt={hit.product.product_name || 'Product'} />}
+                {photo(hit.product) && <img src={photo(hit.product)} alt="" />}
                 <div>
-                  <h2>{hit.product.product_name}</h2>
-                  <p>{hit.product.brands} {hit.product.code && <small>· {hit.product.code}</small>}</p>
+                  <h2>{hit.product.product_name || hit.product.generic_name}</h2>
+                  <p>{hit.product.brands} {hit.product.quantity} {hit.product.code && <small>· {hit.product.code}</small>}</p>
                 </div>
               </div>
-              {insightBusy && <p className="note">Sprout is writing a description and healthier swaps…</p>}
-              {insight?.description && <p className="ai-blurb">{insight.description}</p>}
+              {(hit.product.generic_name || hit.product.ingredients_text) && (
+                <p className="product-desc">
+                  {hit.product.generic_name ? <><strong>{hit.product.generic_name}.</strong> </> : null}
+                  {hit.product.ingredients_text}
+                </p>
+              )}
+              {hit.product.labels && <p className="note">Labels in the catalog: {hit.product.labels}</p>}
+              {brief?.description && <p>{brief.description}</p>}
+              {brief?.practices && <p>{brief.practices}</p>}
+              {brief?.alternatives && <p>{brief.alternatives}</p>}
               <p className={hit.organic ? 'ok' : 'alert'}>
                 {hit.organic
                   ? 'This record is tagged organic in Open Food Facts. That is a label on the product file, not a lab test by this site.'
@@ -339,41 +542,24 @@ export function ProductPage() {
         </Reveal>
       </div>
 
-      {(insight?.healthier.length || alts.length > 0 || stores.length > 0) ? (
+      {(alts.length > 0 || stores.length > 0) && (
         <section className="split-results">
-          {(insight?.healthier.length || alts.length > 0) ? (
+          {alts.length > 0 && (
             <div className="soft-card">
-              <h2>Healthier alternatives</h2>
-              {insight?.healthier.length ? (
-                <ul className="alt-list">
-                  {insight.healthier.map((a) => (
-                    <li key={a.name}>
-                      <div>
-                        <strong>{a.name}</strong>
-                        <small>{a.why}</small>
-                      </div>
-                      <button type="button" className="btn small" onClick={() => { setQuery(a.query); void lookup(a.query) }}>Look up</button>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-              {alts.length > 0 && (
-                <>
-                  <p className="note">Public catalog hits for an organic version. They are not a cleanliness score.</p>
-                  <ul className="choice-list">
-                    {alts.map((p) => (
-                      <li key={p.code}>
-                        <button type="button" onClick={() => void choose(p)}>
-                          {p.image_front_small_url && <img src={p.image_front_small_url} alt="" />}
-                          <span><strong>{p.product_name}</strong><small>{p.brands}</small></span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              )}
+              <h2>Other products in the public catalog</h2>
+              <p className="note">These are search hits for an organic version. They are not a cleanliness score, and stock near you isn’t published.</p>
+              <ul className="choice-list">
+                {alts.map((p) => (
+                  <li key={p.code}>
+                    <button type="button" onClick={() => void choose(p)}>
+                      {photo(p) && <img src={photo(p)} alt="" />}
+                      <span><strong>{p.product_name || p.generic_name}</strong><small>{p.brands}</small></span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
-          ) : null}
+          )}
           {stores.length > 0 && (
             <div className="soft-card">
               <h2>Ask a store near {zip}</h2>
@@ -388,7 +574,7 @@ export function ProductPage() {
             </div>
           )}
         </section>
-      ) : null}
+      )}
     </>
   )
 }

@@ -17,19 +17,12 @@ type Geo = {
 
 type Store = { name: string; kind: string }
 
-type SproutZip = {
-  summary: string
-  shopping: string[]
-  askStores: string
-}
-
 export function NearPage() {
   const [zip, setZip] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [geo, setGeo] = useState<Geo | null>(null)
   const [stores, setStores] = useState<Store[] | null>(null)
-  const [sprout, setSprout] = useState<SproutZip | null>(null)
 
   const county = data.counties.find((c) => c.name.toLowerCase() === (geo?.county ?? '').toLowerCase())
 
@@ -44,7 +37,6 @@ export function NearPage() {
     setError('')
     setGeo(null)
     setStores(null)
-    setSprout(null)
     try {
       const geoRes = await fetch(`/api/geo?q=${encodeURIComponent(q)}`)
       if (!geoRes.ok) {
@@ -59,7 +51,6 @@ export function NearPage() {
         return
       }
       setGeo(place)
-      const matched = data.counties.find((c) => c.name.toLowerCase() === (place.county ?? '').toLowerCase())
       const placeName = place.city || place.zip || q
       const storeRes = await fetch(`/api/stores?q=${encodeURIComponent(`${placeName}, California`)}`)
       if (storeRes.ok) {
@@ -67,27 +58,6 @@ export function NearPage() {
         setStores(body.stores ?? [])
       } else {
         setStores([])
-      }
-      try {
-        const aiRes = await fetch('/api/sprout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            kind: 'zip',
-            place: {
-              zip: place.zip || q,
-              city: place.city,
-              county: place.county,
-              state: place.state,
-              lbs: matched?.lbs,
-              rank: matched?.rank,
-              crops: matched?.crops.map((c) => ({ name: c.name, chems: c.chems })),
-            },
-          }),
-        })
-        if (aiRes.ok) setSprout((await aiRes.json()) as SproutZip)
-      } catch {
-        /* stores and county numbers still show */
       }
     } catch {
       setError('Lookup is unavailable right now. The Data page still works offline.')
@@ -103,7 +73,7 @@ export function NearPage() {
         <p className="sub">
           No public file names the distributor behind a grocery shelf. What is public: the shops
           mapped near a zip, and the county pesticide totals for the fields around them
-          <Cite n={[ID.dprCounty, ID.nominatim]} />. Sprout turns those numbers into shopping tips.
+          <Cite n={[ID.dprCounty, ID.nominatim]} />.
         </p>
       </Reveal>
 
@@ -135,19 +105,6 @@ export function NearPage() {
               </>
             ) : (
               <p>That place is outside this site’s 15 Central Valley counties, so there is no county chart for it here.</p>
-            )}
-            {sprout && (
-              <>
-                <p className="ai-blurb">{sprout.summary}</p>
-                {sprout.shopping.length > 0 && (
-                  <ul className="alt-list">
-                    {sprout.shopping.map((tip) => (
-                      <li key={tip}><span>{tip}</span></li>
-                    ))}
-                  </ul>
-                )}
-                {sprout.askStores && <p className="note">{sprout.askStores}</p>}
-              </>
             )}
           </Reveal>
 

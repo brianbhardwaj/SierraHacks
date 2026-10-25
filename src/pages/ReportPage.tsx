@@ -23,7 +23,7 @@ export function ReportPage() {
       </Reveal>
 
       <Reveal className="soft-card emergency" >
-        <strong>🚨 Emergency?</strong> Call <a href="tel:911">911</a> first. For poisoning advice call
+        <strong>Emergency?</strong> Call <a href="tel:911">911</a> first. For poisoning advice call
         Poison Control <a href="tel:18002221222">1-800-222-1222</a><Cite n={[ID.dprReportPage]} />.
       </Reveal>
 
