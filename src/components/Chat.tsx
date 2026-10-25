@@ -25,9 +25,16 @@ export function Chat() {
   const endRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    fetch('/api/chat/status')
-      .then((r) => (r.ok ? r.json() : { ai: false }))
-      .then((j: { ai: boolean }) => setAi(Boolean(j.ai)))
+    const read = (r: Response) => (r.ok ? r.json() : { ai: false })
+    fetch('/api/chat')
+      .then(read)
+      .then((j: { ai: boolean }) => {
+        if (j.ai) {
+          setAi(true)
+          return
+        }
+        return fetch('/api/chat/status').then(read).then((s: { ai: boolean }) => setAi(Boolean(s.ai)))
+      })
       .catch(() => setAi(false))
   }, [])
 
@@ -43,19 +50,18 @@ export function Chat() {
     setInput('')
     setBusy(true)
     let reply = ''
-    if (ai) {
-      try {
-        const res = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messages: next.slice(-8) }),
-        })
-        if (res.ok) {
-          reply = ((await res.json()) as { reply: string }).reply
-        }
-      } catch {
-        /* fall through to offline helper */
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: next.slice(-8) }),
+      })
+      if (res.ok) {
+        reply = ((await res.json()) as { reply: string }).reply
+        if (reply) setAi(true)
       }
+    } catch {
+      /* fall through to offline helper */
     }
     if (!reply) reply = localReply(clean)
     setMessages([...next, { role: 'assistant', content: reply }])

@@ -21,11 +21,14 @@ Rules:
 export const knowledgeText = knowledge.map((k) => `- ${k.text}`).join('\n')
 
 function key() {
-  return process.env.OPENAI_API_KEY
+  return process.env.OPENAI_API_KEY || process.env.GROQ_API_KEY
 }
 
 function baseUrl() {
-  return process.env.OPENAI_BASE_URL ?? 'https://api.openai.com/v1'
+  if (process.env.OPENAI_BASE_URL) return process.env.OPENAI_BASE_URL
+  const k = key()
+  if (k?.startsWith('gsk_') || process.env.GROQ_API_KEY) return 'https://api.groq.com/openai/v1'
+  return 'https://api.openai.com/v1'
 }
 
 const GROQ_FALLBACK_MODEL = 'openai/gpt-oss-20b'

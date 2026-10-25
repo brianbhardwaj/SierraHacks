@@ -65,7 +65,9 @@ export function chatPlugin(): Plugin {
       }
     }
 
-    if (url.startsWith('/api/chat/status')) return send(res, chatStatus())
+    if ((path === '/api/chat' && req.method === 'GET') || path === '/api/chat/status') {
+      return send(res, chatStatus())
+    }
     if (!url.startsWith('/api/chat') || req.method !== 'POST') return next()
     try {
       return send(res, await chatReply(JSON.parse(await readBody(req))))
