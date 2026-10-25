@@ -76,7 +76,7 @@ export function Chat() {
             {ai === null
               ? 'Connecting…'
               : ai
-                ? 'AI mode: answers use only this site’s sourced facts'
+                ? 'Sprout AI is on: answers use only this site’s sourced facts'
                 : 'Built-in guide mode: no AI key set, answers use this site’s sourced facts'}
           </small>
         </div>

@@ -9,8 +9,8 @@ export function AskPage() {
         <p className="eyebrow">Ask</p>
         <h1>Tell Sprout your situation</h1>
         <p className="sub">
-          Where you live, who you look after, what you eat or grow. Sprout suggests next steps and cites
-          every fact it uses.
+          Where you live, who you look after, what you eat or grow. Sprout uses Groq AI plus this site’s
+          sourced facts, then cites every number it uses.
         </p>
       </Reveal>
       <Reveal>

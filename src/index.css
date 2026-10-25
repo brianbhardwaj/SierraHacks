@@ -733,6 +733,24 @@ label small, h3 small { font-weight: 500; color: var(--mute); }
 .product-head { display: flex; gap: 0.8rem; align-items: center; }
 .scanner { display: none; width: 100%; border-radius: 18px; margin-top: 0.7rem; background: #000; }
 .scanner.on { display: block; max-height: 220px; }
+.ai-blurb {
+  margin: 0.7rem 0;
+  padding: 0.75rem 0.85rem;
+  border-radius: 16px;
+  background: rgba(46, 125, 74, 0.08);
+  line-height: 1.45;
+}
+.alt-list { list-style: none; padding: 0; margin: 0.7rem 0 0; display: grid; gap: 0.55rem; }
+.alt-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.7rem;
+  background: var(--bg);
+  border-radius: 16px;
+  padding: 0.6rem 0.75rem;
+}
+.alt-list small { display: block; color: var(--mute); font-weight: 600; margin-top: 0.2rem; }
 @media (max-width: 900px) {
   .landing, .story, .split-results, .product-layout { grid-template-columns: 1fr; }
   .metrics, .tool-grid { grid-template-columns: 1fr; }
