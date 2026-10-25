@@ -7,6 +7,7 @@ import {
   productBrief,
   productLookup,
   storeLookup,
+  zipBrief,
   type ApiResult,
 } from './server/unsprayApi.ts'
 
@@ -51,6 +52,14 @@ export function chatPlugin(): Plugin {
     if (path === '/api/product-brief' && req.method === 'POST') {
       try {
         return send(res, await productBrief(JSON.parse(await readBody(req))))
+      } catch {
+        return send(res, { status: 500, body: { error: 'server' } })
+      }
+    }
+
+    if (path === '/api/zip-brief' && req.method === 'POST') {
+      try {
+        return send(res, await zipBrief(JSON.parse(await readBody(req))))
       } catch {
         return send(res, { status: 500, body: { error: 'server' } })
       }

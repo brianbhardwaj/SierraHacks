@@ -24,7 +24,9 @@ type OffProduct = {
   packaging?: string
 }
 
-type Brief = { description: string; practices: string; alternatives: string }
+type HealthyAlt = { name: string; why: string; practice: string; query: string }
+
+type Brief = { description: string; practices: string; alternatives: HealthyAlt[] }
 
 type Store = { name: string; kind: string }
 
@@ -128,7 +130,7 @@ export function ProductPage() {
       setBrief({
         description: body.description ?? '',
         practices: body.practices ?? '',
-        alternatives: body.alternatives ?? '',
+        alternatives: Array.isArray(body.alternatives) ? body.alternatives : [],
       })
     } catch {
       /* key unset or offline: the page still shows catalog fields */
@@ -494,9 +496,8 @@ export function ProductPage() {
                 </p>
               )}
               {hit.product.labels && <p className="note">Labels in the catalog: {hit.product.labels}</p>}
-              {brief?.description && <p>{brief.description}</p>}
+              {brief?.description && <p className="ai-blurb">{brief.description}</p>}
               {brief?.practices && <p>{brief.practices}</p>}
-              {brief?.alternatives && <p>{brief.alternatives}</p>}
               <p className={hit.organic ? 'ok' : 'alert'}>
                 {hit.organic
                   ? 'This record is tagged organic in Open Food Facts. That is a label on the product file, not a lab test by this site.'
@@ -542,31 +543,54 @@ export function ProductPage() {
         </Reveal>
       </div>
 
-      {(alts.length > 0 || stores.length > 0) && (
+      {(brief?.alternatives.length || alts.length > 0 || stores.length > 0) ? (
         <section className="split-results">
-          {alts.length > 0 && (
+          {(brief?.alternatives.length || alts.length > 0) ? (
             <div className="soft-card">
-              <h2>Other products in the public catalog</h2>
-              <p className="note">These are search hits for an organic version. They are not a cleanliness score, and stock near you isn’t published.</p>
-              <ul className="choice-list">
-                {alts.map((p) => (
-                  <li key={p.code}>
-                    <button type="button" onClick={() => void choose(p)}>
-                      {photo(p) && <img src={photo(p)} alt="" />}
-                      <span><strong>{p.product_name || p.generic_name}</strong><small>{p.brands}</small></span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              <h2>Healthier choices</h2>
+              <p className="note">
+                Sprout suggests organic, farmers-market, and IPM options. These are shopping leads, not a lab test of this package.
+              </p>
+              {brief?.alternatives.length ? (
+                <ul className="alt-list">
+                  {brief.alternatives.map((a) => (
+                    <li key={a.name}>
+                      <div>
+                        <strong>{a.name}</strong>
+                        <small>{a.why}{a.practice ? ` · ${a.practice}` : ''}</small>
+                      </div>
+                      <button type="button" className="btn small" onClick={() => { setQuery(a.query); void lookup(a.query) }}>Look up</button>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              {alts.length > 0 && (
+                <>
+                  <p className="note">Public catalog hits for an organic version.</p>
+                  <ul className="choice-list">
+                    {alts.map((p) => (
+                      <li key={p.code}>
+                        <button type="button" onClick={() => void choose(p)}>
+                          {photo(p) && <img src={photo(p)} alt="" />}
+                          <span><strong>{p.product_name || p.generic_name}</strong><small>{p.brands}</small></span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
             </div>
-          )}
+          ) : null}
           {stores.length > 0 && (
             <div className="soft-card">
               <h2>Ask a store near {zip}</h2>
               <ul className="store-list">
-                {stores.slice(0, 6).map((s) => (
+                {stores.slice(0, 8).map((s) => (
                   <li key={s.name}>
-                    <strong>{s.name}</strong>
+                    <div>
+                      <strong>{s.name}</strong>
+                      <small>{s.kind}</small>
+                    </div>
                     <Link className="btn small" to={`/email?store=${encodeURIComponent(s.name)}`}>Email</Link>
                   </li>
                 ))}
@@ -574,7 +598,7 @@ export function ProductPage() {
             </div>
           )}
         </section>
-      )}
+      ) : null}
     </>
   )
 }

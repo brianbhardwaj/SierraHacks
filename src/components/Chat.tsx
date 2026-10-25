@@ -8,6 +8,7 @@ const starters = [
   'I work in the fields',
   'I want to protect bees and monarchs in my yard',
   'How do I ask my grocery store about pesticides?',
+  'Where should I shop for lower-pesticide food?',
 ]
 
 export function Chat() {
@@ -76,7 +77,7 @@ export function Chat() {
             {ai === null
               ? 'Connecting…'
               : ai
-                ? 'AI mode: answers use only this site’s sourced facts'
+                ? 'Sprout AI is on: answers use this site’s sourced facts'
                 : 'Built-in guide mode: no AI key set, answers use this site’s sourced facts'}
           </small>
         </div>

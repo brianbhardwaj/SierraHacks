@@ -3,6 +3,9 @@ import { knowledge } from '../src/data/facts.ts'
 export type ApiResult = { status: number; body: unknown }
 
 type Msg = { role: 'user' | 'assistant'; content: string }
+type ChatJson = {
+  choices?: { message?: { content?: string | { type?: string; text?: string }[]; reasoning?: string } }[]
+}
 
 const UA = { 'User-Agent': 'Unspray/1.0 (SierraHacks student project)', Accept: 'application/json' }
 
@@ -12,6 +15,7 @@ Rules:
 - If the answer is not in KNOWLEDGE, say you do not have a sourced answer and suggest the county chart, the FAQ, or calling the County Agricultural Commissioner via 1-87PestLine.
 - Give 2-4 concrete steps tailored to the user's situation. Keep it under 160 words. Be kind, never alarmist.
 - Cite sources with bracket numbers like [13] exactly as they appear in KNOWLEDGE.
+- When the user asks about food or shopping, suggest USDA organic, California certified organic, farmers markets, and asking stores who grew the food. Never claim a brand is pesticide-free.
 - You are not a doctor or lawyer. For emergencies say to call 911.`
 
 export const knowledgeText = knowledge.map((k) => `- ${k.text}`).join('\n')
@@ -36,25 +40,71 @@ function model() {
   return requested ?? 'gpt-4o-mini'
 }
 
+function looksLikeThought(text: string) {
+  return /^(we need to|the user asked|according to rules|let's|i need to)/i.test(text.trim())
+}
+
+function messageText(msg?: { content?: string | { type?: string; text?: string }[]; reasoning?: string }) {
+  const content = msg?.content
+  if (typeof content === 'string' && content.trim() && !looksLikeThought(content)) return content.trim()
+  if (Array.isArray(content)) {
+    const joined = content.map((p) => (typeof p === 'string' ? p : p.text || '')).join('').trim()
+    if (joined && !looksLikeThought(joined)) return joined
+  }
+  const reasoning = typeof msg?.reasoning === 'string' ? msg.reasoning.trim() : ''
+  if (reasoning && !looksLikeThought(reasoning)) return reasoning
+  if (typeof content === 'string' && content.trim()) return content.trim()
+  return reasoning
+}
+
+function parseJsonObject<T>(raw: string): T | null {
+  const stripped = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '')
+  try {
+    return JSON.parse(stripped) as T
+  } catch {
+    const markers = ['{"description"', '{"summary"', '{ "description"', '{ "summary"']
+    let start = -1
+    for (const m of markers) {
+      const i = stripped.lastIndexOf(m)
+      if (i > start) start = i
+    }
+    if (start < 0) start = stripped.indexOf('{')
+    const end = stripped.lastIndexOf('}')
+    if (start < 0 || end <= start) return null
+    try {
+      return JSON.parse(stripped.slice(start, end + 1)) as T
+    } catch {
+      return null
+    }
+  }
+}
+
 async function complete(k: string, body: Record<string, unknown>) {
   const headers = {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${k}`,
     ...UA,
   }
+  const tokens = typeof body.max_tokens === 'number' ? body.max_tokens : 500
   const post = (modelId: string) =>
     fetch(`${baseUrl()}/chat/completions`, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ ...body, model: modelId }),
+      body: JSON.stringify({
+        ...body,
+        model: modelId,
+        max_completion_tokens: tokens,
+        ...(groqHost() ? { reasoning_format: 'hidden' } : {}),
+      }),
     })
   let r = await post(model())
   if (!r.ok && groqHost()) {
     const err = (await r.json().catch(() => null)) as { error?: { code?: string } } | null
     if (err?.error?.code === 'model_not_found') r = await post(GROQ_FALLBACK_MODEL)
-    else return { ok: false as const, status: r.status, json: err }
+    else return { ok: false as const, status: r.status, text: '', json: err }
   }
-  return { ok: r.ok, status: r.status, json: await r.json() }
+  const json = (await r.json()) as ChatJson
+  return { ok: r.ok, status: r.status, text: messageText(json.choices?.[0]?.message), json }
 }
 
 export async function geoLookup(q: string): Promise<ApiResult> {
@@ -95,21 +145,29 @@ export async function geoLookup(q: string): Promise<ApiResult> {
 export async function storeLookup(q: string): Promise<ApiResult> {
   const query = q.trim().slice(0, 80)
   if (query.length < 2) return { status: 400, body: { error: 'bad-query' } }
+  const searches = [
+    { term: `farmers market in ${query}`, kind: 'farmers market' },
+    { term: `health food in ${query}`, kind: 'healthy food' },
+    { term: `organic grocery in ${query}`, kind: 'organic grocery' },
+    { term: `supermarket in ${query}`, kind: 'grocery' },
+  ]
+  const seen = new Set<string>()
+  const stores: { name: string; kind: string; where: string }[] = []
   try {
-    const r = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=12&countrycodes=us&q=${encodeURIComponent(`supermarket in ${query}`)}`,
-      { headers: UA },
-    )
-    if (!r.ok) return { status: 502, body: { error: 'stores' } }
-    const hits = (await r.json()) as { name?: string; type?: string; display_name?: string }[]
-    const seen = new Set<string>()
-    const stores = hits
-      .map((h) => ({ name: h.name || '', kind: h.type || 'shop', where: h.display_name || '' }))
-      .filter((s) => {
-        if (!s.name || seen.has(s.name)) return false
-        seen.add(s.name)
-        return true
-      })
+    for (const s of searches) {
+      const r = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=8&countrycodes=us&q=${encodeURIComponent(s.term)}`,
+        { headers: UA },
+      )
+      if (!r.ok) continue
+      const hits = (await r.json()) as { name?: string; type?: string; display_name?: string }[]
+      for (const h of hits) {
+        const name = h.name || ''
+        if (!name || seen.has(name)) continue
+        seen.add(name)
+        stores.push({ name, kind: s.kind, where: h.display_name || '' })
+      }
+    }
     return { status: 200, body: { stores } }
   } catch {
     return { status: 502, body: { error: 'stores' } }
@@ -141,6 +199,23 @@ export async function productLookup(barcodeRaw: string, qRaw: string): Promise<A
   }
 }
 
+export type HealthyAlt = { name: string; why: string; practice: string; query: string }
+
+function asAlts(raw: unknown): HealthyAlt[] {
+  if (!Array.isArray(raw)) return []
+  return raw
+    .filter((a) => a && typeof a === 'object')
+    .map((a) => a as Record<string, unknown>)
+    .filter((a) => a.name && a.why)
+    .slice(0, 4)
+    .map((a) => ({
+      name: String(a.name).slice(0, 80),
+      why: String(a.why).slice(0, 240),
+      practice: String(a.practice || '').slice(0, 180),
+      query: String(a.query || a.name).slice(0, 80),
+    }))
+}
+
 export async function productBrief(parsed: {
   product?: Record<string, unknown>
   crop?: string
@@ -157,9 +232,9 @@ export async function productBrief(parsed: {
 Use ONLY the product fields and crop notes provided. Never invent a farm, a brand spray list, a residue test, or a health diagnosis.
 If a crop match and chemical list are given, say they are California county/crop totals, not this package.
 If organic is true, say that is a catalog label, not a lab test by this site.
-If you lack a fact, say so in one clause.
-Return JSON only: {"description":"","practices":"","alternatives":""}
-Each value is 1-3 sentences, plain language.`
+Give 3 healthier choices that usually mean less pesticide use: USDA organic, California certified organic, farmers-market produce, IPM growers, or a less-processed version. Never say a brand is pesticide-free.
+Reply with one JSON object, no markdown:
+{"description":"2-3 sentences","practices":"1-2 sentences","alternatives":[{"name":"short name","why":"why it is a healthier choice","practice":"organic / farmers market / IPM","query":"grocery search"}]}`
     const payload = JSON.stringify({
       product,
       crop: crop || null,
@@ -168,24 +243,74 @@ Each value is 1-3 sentences, plain language.`
     })
     const r = await complete(k, {
       temperature: 0.2,
-      max_tokens: 420,
-      response_format: { type: 'json_object' },
+      max_tokens: 800,
       messages: [
         { role: 'system', content: `${briefSystem}\n\nKNOWLEDGE:\n${knowledgeText}` },
         { role: 'user', content: payload.slice(0, 4000) },
       ],
     })
-    if (!r.ok) return { status: 502, body: { error: 'upstream' } }
-    const j = r.json as { choices?: { message?: { content?: string } }[] }
-    const text = j.choices?.[0]?.message?.content?.trim()
-    if (!text) return { status: 502, body: { error: 'empty' } }
-    const brief = JSON.parse(text) as { description?: string; practices?: string; alternatives?: string }
+    if (!r.ok || !r.text) return { status: 502, body: { error: r.ok ? 'empty' : 'upstream' } }
+    const brief = parseJsonObject<{ description?: string; practices?: string; alternatives?: unknown }>(r.text)
     return {
       status: 200,
       body: {
-        description: String(brief.description ?? '').slice(0, 800),
-        practices: String(brief.practices ?? '').slice(0, 800),
-        alternatives: String(brief.alternatives ?? '').slice(0, 800),
+        description: String(brief?.description || r.text).slice(0, 800),
+        practices: String(brief?.practices ?? '').slice(0, 800),
+        alternatives: asAlts(brief?.alternatives),
+      },
+    }
+  } catch {
+    return { status: 500, body: { error: 'server' } }
+  }
+}
+
+export async function zipBrief(parsed: {
+  zip?: string
+  city?: string
+  county?: string
+  state?: string
+  lbs?: number
+  rank?: number
+  crops?: { name: string; chems: { name: string; lbs: number }[] }[]
+  stores?: { name: string; kind: string }[]
+}): Promise<ApiResult> {
+  const k = key()
+  if (!k) return { status: 503, body: { error: 'no-key' } }
+  try {
+    const cropLines = (parsed.crops ?? [])
+      .slice(0, 5)
+      .map((c) => {
+        const chems = (c.chems ?? []).slice(0, 5).map((x) => `${x.name} (${x.lbs} lb)`).join('; ')
+        return `- ${c.name}: ${chems}`
+      })
+      .join('\n')
+    const storeLines = (parsed.stores ?? []).slice(0, 12).map((s) => `- ${s.name} (${s.kind})`).join('\n')
+    const user = [
+      `Zip ${parsed.zip || 'unknown'}, city ${parsed.city || 'unknown'}, ${parsed.county || 'unknown'} County, ${parsed.state || 'unknown'}.`,
+      parsed.lbs != null
+        ? `DPR 2023: ${parsed.lbs} lb applied, rank #${parsed.rank} among California counties.`
+        : 'This zip is outside the site’s 15 Central Valley county charts.',
+      cropLines ? `Top crops and their top chemicals:\n${cropLines}` : 'No crop list for this county on this site.',
+      storeLines ? `Mapped shops (OpenStreetMap names, not a supplier list):\n${storeLines}` : 'No shops mapped.',
+    ].join('\n')
+    const zipSystem = `You are Sprout helping someone find nearby markets that are more likely to carry healthier, lower-pesticide food.
+Use ONLY the county numbers and shop names in the user message. Do not invent pounds, ranks, chemicals, or stores.
+From the mapped names, pick shops that sound like farmers markets, health-food, organic grocers, or natural markets. Say OSM does not publish inventory.
+Reply with one JSON object, no markdown:
+{"summary":"3-5 sentences","healthyShops":["shop name","shop name"],"ask":"1-2 sentences on what to ask those shops"}`
+    const r = await complete(k, {
+      temperature: 0.3,
+      max_tokens: 800,
+      messages: [{ role: 'system', content: zipSystem }, { role: 'user', content: user }],
+    })
+    if (!r.ok || !r.text) return { status: 502, body: { error: r.ok ? 'empty' : 'upstream' } }
+    const body = parseJsonObject<{ summary?: string; healthyShops?: string[]; ask?: string }>(r.text)
+    return {
+      status: 200,
+      body: {
+        summary: String(body?.summary || r.text).slice(0, 900),
+        healthyShops: (body?.healthyShops ?? []).filter((t) => typeof t === 'string').slice(0, 6).map((t) => t.slice(0, 80)),
+        ask: String(body?.ask || '').slice(0, 400),
       },
     }
   } catch {
@@ -212,10 +337,8 @@ export async function chatReply(parsed: { messages?: Msg[] }): Promise<ApiResult
       messages: [{ role: 'system', content: `${SYSTEM}\n\nKNOWLEDGE:\n${knowledgeText}` }, ...messages],
     })
     if (!r.ok) return { status: 502, body: { error: 'upstream' } }
-    const j = r.json as { choices?: { message?: { content?: string } }[] }
-    const reply = j.choices?.[0]?.message?.content?.trim()
-    if (!reply) return { status: 502, body: { error: 'empty' } }
-    return { status: 200, body: { reply } }
+    if (!r.text) return { status: 502, body: { error: 'empty' } }
+    return { status: 200, body: { reply: r.text } }
   } catch {
     return { status: 500, body: { error: 'server' } }
   }

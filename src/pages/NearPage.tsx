@@ -15,7 +15,13 @@ type Geo = {
   zip: string
 }
 
-type Store = { name: string; kind: string }
+type Store = { name: string; kind: string; where?: string }
+
+type ZipBrief = {
+  summary: string
+  healthyShops: string[]
+  ask: string
+}
 
 export function NearPage() {
   const [zip, setZip] = useState('')
@@ -23,6 +29,7 @@ export function NearPage() {
   const [error, setError] = useState('')
   const [geo, setGeo] = useState<Geo | null>(null)
   const [stores, setStores] = useState<Store[] | null>(null)
+  const [brief, setBrief] = useState<ZipBrief | null>(null)
 
   const county = data.counties.find((c) => c.name.toLowerCase() === (geo?.county ?? '').toLowerCase())
 
@@ -37,6 +44,7 @@ export function NearPage() {
     setError('')
     setGeo(null)
     setStores(null)
+    setBrief(null)
     try {
       const geoRes = await fetch(`/api/geo?q=${encodeURIComponent(q)}`)
       if (!geoRes.ok) {
@@ -53,17 +61,41 @@ export function NearPage() {
       setGeo(place)
       const placeName = place.city || place.zip || q
       const storeRes = await fetch(`/api/stores?q=${encodeURIComponent(`${placeName}, California`)}`)
+      let mapped: Store[] = []
       if (storeRes.ok) {
         const body = (await storeRes.json()) as { stores?: Store[] }
-        setStores(body.stores ?? [])
+        mapped = body.stores ?? []
+        setStores(mapped)
       } else {
         setStores([])
+      }
+      const matched = data.counties.find((c) => c.name.toLowerCase() === (place.county ?? '').toLowerCase())
+      try {
+        const aiRes = await fetch('/api/zip-brief', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            zip: place.zip || q,
+            city: place.city,
+            county: place.county,
+            state: place.state,
+            lbs: matched?.lbs,
+            rank: matched?.rank,
+            crops: matched?.crops.map((c) => ({ name: c.name, chems: c.chems })),
+            stores: mapped.map((s) => ({ name: s.name, kind: s.kind })),
+          }),
+        })
+        if (aiRes.ok) setBrief((await aiRes.json()) as ZipBrief)
+      } catch {
+        /* mapped shops still show */
       }
     } catch {
       setError('Lookup is unavailable right now. The Data page still works offline.')
     }
     setBusy(false)
   }
+
+  const healthySet = new Set((brief?.healthyShops ?? []).map((n) => n.toLowerCase()))
 
   return (
     <>
@@ -72,8 +104,8 @@ export function NearPage() {
         <h1>See the stores near you, then ask them</h1>
         <p className="sub">
           No public file names the distributor behind a grocery shelf. What is public: the shops
-          mapped near a zip, and the county pesticide totals for the fields around them
-          <Cite n={[ID.dprCounty, ID.nominatim]} />.
+          mapped near a zip, including farmers markets and health-food stores, plus the county
+          pesticide totals<Cite n={[ID.dprCounty, ID.nominatim]} />. Sprout flags names that look like healthier markets.
         </p>
       </Reveal>
 
@@ -106,21 +138,27 @@ export function NearPage() {
             ) : (
               <p>That place is outside this site’s 15 Central Valley counties, so there is no county chart for it here.</p>
             )}
+            {brief && (
+              <>
+                <p className="ai-blurb">{brief.summary}</p>
+                {brief.ask && <p className="note">{brief.ask}</p>}
+              </>
+            )}
           </Reveal>
 
           <Reveal className="soft-card" delay={80}>
-            <h2>Shops mapped nearby</h2>
+            <h2>Markets and shops mapped nearby</h2>
             <p className="note">
-              Names come from OpenStreetMap, not from a supplier list. Email one and ask who grows the produce.
+              Names come from OpenStreetMap. Farmers markets, health-food, and organic grocers are listed first when found. Email one and ask who grows the produce.
             </p>
             {stores === null && <p>Looking up shops…</p>}
             {stores && stores.length === 0 && <p>No named grocery shops were returned for this area. Try a neighboring zip.</p>}
             <ul className="store-list">
               {(stores ?? []).map((s) => (
-                <li key={s.name}>
+                <li key={s.name} className={healthySet.has(s.name.toLowerCase()) ? 'healthy-shop' : undefined}>
                   <div>
                     <strong>{s.name}</strong>
-                    <small>{s.kind}</small>
+                    <small>{s.kind}{healthySet.has(s.name.toLowerCase()) ? ' · healthier pick' : ''}</small>
                   </div>
                   <Link className="btn small" to={`/email?store=${encodeURIComponent(s.name)}`}>Email them</Link>
                 </li>
